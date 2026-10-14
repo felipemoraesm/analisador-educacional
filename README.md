@@ -98,10 +98,10 @@ Saída esperada do `curl`: `{"message":"Hello, World!"}`. Depois, abra http://lo
 
 Registro da validação (preencha com seus dados):
 
-- Data: ____/____/2026
-- Sistema operacional: ________
-- Versão do Docker / Compose: ________
-- Resultado: ________
+- Data: 13/10/2026
+- Sistema operacional: Windows 11
+- Versão do Docker / Compose: Docker version 29.8.2
+- Resultado: Aprovado. A página exibiu "Hello, World!"
 
 ## 7. Problemas comuns
 
