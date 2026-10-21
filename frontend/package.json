@@ -1,0 +1,13 @@
+{
+  "name": "analisador-frontend",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Testes do frontend do Analisador Educacional",
+  "scripts": {
+    "test": "node --test tests/interface.test.js tests/integracao.test.js",
+    "test:integracao": "node --test tests/integracao.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}
