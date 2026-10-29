@@ -209,7 +209,7 @@ Registro completo (comandos, falhas encontradas e correções, mudanças intenci
 | Integração com backend real | 10 aprovados, 0 reprovados |
 | Ponta a ponta (Chromium) | 25 aprovados, 0 reprovados |
 | Verificação HTTP da API | 23/23 aprovadas |
-| Implantação com Docker Compose | **preencher após executar `scripts/testar_implantacao.sh`** |
+| Implantação com Docker Compose | Aprovada: serviços iniciaram, backend saudável e 23/23 verificações da API |
 
 Os números acima foram obtidos com Uvicorn e Nginx (com a `nginx.conf` do projeto) **fora de contêineres**.
 
@@ -240,10 +240,10 @@ bash scripts/testar_implantacao.sh
 
 Registro (preencher):
 
-- Data: ____/____/2026
-- Sistema operacional: ________
-- Versões de Docker / Compose: ________
-- Resultado: ________
+- Data: 29/10/2026
+- Sistema operacional: Windows 11
+- Versões de Docker / Compose: 29.8.2
+- Resultado: Aprovado
 
 ## 12. Limitações conhecidas
 
