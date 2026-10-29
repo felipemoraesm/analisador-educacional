@@ -195,9 +195,10 @@ test('sucesso: mostra mensagem do servidor, contagem e aviso de etapas futuras',
   t.digitar('int a;\nint b;');
   await t.clicar();
   assert.ok(t.resultado.classList.contains('resultado--sucesso'));
-  assert.match(t.resultado.textContent, /Código recebido com sucesso\./);
+  // Etapa 3: a mensagem do servidor passou a descrever a análise léxica (antes: "Código recebido com sucesso.")
+  assert.match(t.resultado.textContent, /Análise léxica concluída/);
   assert.match(t.resultado.textContent, /2 linhas · 13 caracteres/);
-  assert.match(t.resultado.textContent, /próximas etapas/);
+  assert.match(t.resultado.textContent, /sintática e semântica serão adicionadas nas próximas etapas/);
 });
 
 test('erro de validação devolvido pelo backend (400) é exibido como entrada inválida', async () => {

@@ -1,0 +1,659 @@
+{
+ "codigo": "int idade = 21;\nfloat altura = 1.75; // comentario\nchar c = 'A';\nif (idade >= 18 && !c) { return 1; }\n",
+ "resposta": {
+  "recebido": true,
+  "sucesso": true,
+  "mensagem": "Análise léxica concluída: 29 tokens, nenhum erro léxico.",
+  "linhas": 4,
+  "caracteres": 102,
+  "tokens": [
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "int",
+    "linha": 1,
+    "coluna": 1,
+    "inicio": 0,
+    "fim": 3,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "n",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "idade",
+    "linha": 1,
+    "coluna": 5,
+    "inicio": 4,
+    "fim": 9,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "d",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "d",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "e",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 1,
+    "coluna": 11,
+    "inicio": 10,
+    "fim": 11,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "21",
+    "linha": 1,
+    "coluna": 13,
+    "inicio": 12,
+    "fim": 14,
+    "caminho": [
+     {
+      "c": "2",
+      "classe": "digito",
+      "estado": "INT"
+     },
+     {
+      "c": "1",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 1,
+    "coluna": 15,
+    "inicio": 14,
+    "fim": 15,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "float",
+    "linha": 2,
+    "coluna": 1,
+    "inicio": 16,
+    "fim": 21,
+    "caminho": [
+     {
+      "c": "f",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "o",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "altura",
+    "linha": 2,
+    "coluna": 7,
+    "inicio": 22,
+    "fim": 28,
+    "caminho": [
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "u",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 2,
+    "coluna": 14,
+    "inicio": 29,
+    "fim": 30,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_REAL",
+    "lexema": "1.75",
+    "linha": 2,
+    "coluna": 16,
+    "inicio": 31,
+    "fim": 35,
+    "caminho": [
+     {
+      "c": "1",
+      "classe": "digito",
+      "estado": "INT"
+     },
+     {
+      "c": ".",
+      "classe": "ponto",
+      "estado": "REAL_PONTO"
+     },
+     {
+      "c": "7",
+      "classe": "digito",
+      "estado": "REAL"
+     },
+     {
+      "c": "5",
+      "classe": "digito",
+      "estado": "REAL"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 2,
+    "coluna": 20,
+    "inicio": 35,
+    "fim": 36,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "char",
+    "linha": 3,
+    "coluna": 1,
+    "inicio": 51,
+    "fim": 55,
+    "caminho": [
+     {
+      "c": "c",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "h",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "c",
+    "linha": 3,
+    "coluna": 6,
+    "inicio": 56,
+    "fim": 57,
+    "caminho": [
+     {
+      "c": "c",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 3,
+    "coluna": 8,
+    "inicio": 58,
+    "fim": 59,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_CHAR",
+    "lexema": "'A'",
+    "linha": 3,
+    "coluna": 10,
+    "inicio": 60,
+    "fim": 63,
+    "caminho": [
+     {
+      "c": "'",
+      "classe": "apostrofo",
+      "estado": "CHAR_ABRE"
+     },
+     {
+      "c": "A",
+      "classe": "letra",
+      "estado": "CHAR_CONTEUDO"
+     },
+     {
+      "c": "'",
+      "classe": "apostrofo",
+      "estado": "CHAR_FECHA"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 3,
+    "coluna": 13,
+    "inicio": 63,
+    "fim": 64,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "if",
+    "linha": 4,
+    "coluna": 1,
+    "inicio": 65,
+    "fim": 67,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "f",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": "(",
+    "linha": 4,
+    "coluna": 4,
+    "inicio": 68,
+    "fim": 69,
+    "caminho": [
+     {
+      "c": "(",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "idade",
+    "linha": 4,
+    "coluna": 5,
+    "inicio": 69,
+    "fim": 74,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "d",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "d",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "e",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_RELACIONAL",
+    "lexema": ">=",
+    "linha": 4,
+    "coluna": 11,
+    "inicio": 75,
+    "fim": 77,
+    "caminho": [
+     {
+      "c": ">",
+      "classe": "simbolo",
+      "estado": "MAIOR"
+     },
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "MAIOR_IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "18",
+    "linha": 4,
+    "coluna": 14,
+    "inicio": 78,
+    "fim": 80,
+    "caminho": [
+     {
+      "c": "1",
+      "classe": "digito",
+      "estado": "INT"
+     },
+     {
+      "c": "8",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_LOGICO",
+    "lexema": "&&",
+    "linha": 4,
+    "coluna": 17,
+    "inicio": 81,
+    "fim": 83,
+    "caminho": [
+     {
+      "c": "&",
+      "classe": "simbolo",
+      "estado": "E_COMERCIAL"
+     },
+     {
+      "c": "&",
+      "classe": "simbolo",
+      "estado": "E_LOGICO"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_LOGICO",
+    "lexema": "!",
+    "linha": 4,
+    "coluna": 20,
+    "inicio": 84,
+    "fim": 85,
+    "caminho": [
+     {
+      "c": "!",
+      "classe": "simbolo",
+      "estado": "EXCLAMACAO"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "c",
+    "linha": 4,
+    "coluna": 21,
+    "inicio": 85,
+    "fim": 86,
+    "caminho": [
+     {
+      "c": "c",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ")",
+    "linha": 4,
+    "coluna": 22,
+    "inicio": 86,
+    "fim": 87,
+    "caminho": [
+     {
+      "c": ")",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": "{",
+    "linha": 4,
+    "coluna": 24,
+    "inicio": 88,
+    "fim": 89,
+    "caminho": [
+     {
+      "c": "{",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "return",
+    "linha": 4,
+    "coluna": 26,
+    "inicio": 90,
+    "fim": 96,
+    "caminho": [
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "e",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "u",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "n",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "1",
+    "linha": 4,
+    "coluna": 33,
+    "inicio": 97,
+    "fim": 98,
+    "caminho": [
+     {
+      "c": "1",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 4,
+    "coluna": 34,
+    "inicio": 98,
+    "fim": 99,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": "}",
+    "linha": 4,
+    "coluna": 36,
+    "inicio": 100,
+    "fim": 101,
+    "caminho": [
+     {
+      "c": "}",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   }
+  ],
+  "erros": [],
+  "comentarios": [
+   {
+    "tipo": "COMENTARIO_LINHA",
+    "lexema": "// comentario",
+    "linha": 2,
+    "coluna": 22,
+    "inicio": 37,
+    "fim": 50
+   }
+  ],
+  "resumo": {
+   "total_tokens": 29,
+   "total_erros": 0,
+   "total_comentarios": 1,
+   "por_categoria": {
+    "PALAVRA_RESERVADA": 5,
+    "IDENTIFICADOR": 5,
+    "LITERAL_INTEIRO": 3,
+    "LITERAL_REAL": 1,
+    "LITERAL_CHAR": 1,
+    "OPERADOR_RELACIONAL": 1,
+    "OPERADOR_LOGICO": 2,
+    "OPERADOR_ATRIBUICAO": 3,
+    "DELIMITADOR": 8
+   }
+  }
+ }
+}

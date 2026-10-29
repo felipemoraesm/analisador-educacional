@@ -56,3 +56,51 @@ test('servidor inacessível é classificado como falha de comunicação', async 
   assert.equal(r.tipo, 'comunicacao');
   assert.match(r.mensagem, /Não foi possível comunicar com o servidor/);
 });
+
+// ---------- Etapa 3: análise léxica via HTTP real ----------
+test('scanner real: tokens do exemplo da especificação', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const r = await c.analisar('int numero = 10;');
+  assert.equal(r.tipo, 'sucesso');
+  assert.equal(r.dados.sucesso, true);
+  assert.deepEqual(
+    r.dados.tokens.map((t) => [t.tipo, t.lexema, t.linha, t.coluna]),
+    [
+      ['PALAVRA_RESERVADA', 'int', 1, 1],
+      ['IDENTIFICADOR', 'numero', 1, 5],
+      ['OPERADOR_ATRIBUICAO', '=', 1, 12],
+      ['LITERAL_INTEIRO', '10', 1, 14],
+      ['DELIMITADOR', ';', 1, 16],
+    ],
+  );
+  assert.deepEqual(r.dados.erros, []);
+});
+
+test('scanner real: erro léxico retorna sucesso=false com localização, sem derrubar a análise', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const r = await c.analisar('int a = 1;\nint b = a @ 2;');
+  assert.equal(r.tipo, 'sucesso'); // HTTP 200: a análise foi feita
+  assert.equal(r.dados.sucesso, false);
+  assert.equal(r.dados.erros.length, 1);
+  assert.deepEqual([r.dados.erros[0].lexema, r.dados.erros[0].linha, r.dados.erros[0].coluna], ['@', 2, 11]);
+  assert.ok(r.dados.tokens.length > 8); // continuou tokenizando depois do erro
+});
+
+test('scanner real: exemplos léxicos da interface', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const { exemplos } = await c.listarExemplos();
+  const porId = Object.fromEntries(exemplos.map((e) => [e.id, e.codigo]));
+  assert.equal((await c.analisar(porId.operadores)).dados.sucesso, true);
+  const ruim = await c.analisar(porId.erros_lexicos);
+  assert.equal(ruim.dados.sucesso, false);
+  assert.equal(ruim.dados.erros.length, 8);
+});
+
+test('scanner real: posições em UTF-16 recortam o código igual ao JavaScript', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const codigo = 's = "😀😀"; x // ✓ fim\n@';
+  const r = await c.analisar(codigo);
+  for (const item of [...r.dados.tokens, ...r.dados.erros, ...r.dados.comentarios]) {
+    assert.equal(codigo.slice(item.inicio, item.fim), item.lexema);
+  }
+});

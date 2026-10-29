@@ -13,52 +13,226 @@
       <p class="topo__linguagem">
         Linguagem analisada:
         <strong id="linguagem-analisada">C</strong>
-        <span class="selo">subconjunto: int, atribuição, operadores, if/else</span>
+        <span class="selo">subconjunto de C</span>
+        <span class="selo">Etapa 3: análise léxica (scanner)</span>
       </p>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="cartao" aria-labelledby="titulo-entrada">
-      <h2 id="titulo-entrada">Código-fonte</h2>
+  <main class="pagina">
+    <details id="tutorial" class="cartao tutorial">
+      <summary>Tutorial: o que é um scanner? (clique para abrir ou fechar)</summary>
+      <div class="tutorial__corpo">
+        <section>
+          <h3>1. A primeira fase de um compilador</h3>
+          <p>
+            O computador não enxerga um programa como nós. Para ele, o código é uma longa fila de
+            caracteres. A <strong>análise léxica</strong> é a primeira fase do compilador: o
+            <strong>scanner</strong> lê essa fila e a agrupa em pedaços com significado.
+          </p>
+          <ul>
+            <li><strong>Lexema</strong>: o pedaço de texto encontrado no código, como <code>numero</code> ou <code>==</code>.</li>
+            <li><strong>Token</strong>: o lexema já classificado em uma <strong>categoria</strong>, como identificador ou operador relacional.</li>
+          </ul>
+          <div class="rolavel">
+            <table class="tabela tabela--exemplo">
+              <caption>Exemplo: <code>int numero = 10;</code></caption>
+              <thead><tr><th>Lexema</th><th>Categoria (token)</th></tr></thead>
+              <tbody>
+                <tr><td><code>int</code></td><td>PALAVRA_RESERVADA</td></tr>
+                <tr><td><code>numero</code></td><td>IDENTIFICADOR</td></tr>
+                <tr><td><code>=</code></td><td>OPERADOR_ATRIBUICAO</td></tr>
+                <tr><td><code>10</code></td><td>LITERAL_INTEIRO</td></tr>
+                <tr><td><code>;</code></td><td>DELIMITADOR</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-      <div class="campo">
-        <label for="seletor-exemplos">Carregar um exemplo</label>
-        <select id="seletor-exemplos">
-          <option value="">Selecione um exemplo…</option>
-        </select>
-        <p id="descricao-exemplo" class="ajuda" aria-live="polite">
-          Escolha um exemplo ou escreva o seu próprio programa abaixo.
-        </p>
+        <section>
+          <h3>2. Como o scanner decide</h3>
+          <ul>
+            <li>Lê da esquerda para a direita, <strong>um caractere por vez</strong>, guardando em que <strong>estado</strong> está.</li>
+            <li><strong>Maior casamento</strong>: continua enquanto o lexema puder crescer. Por isso <code>&lt;=</code> é um token só, e não <code>&lt;</code> seguido de <code>=</code>.</li>
+            <li>Espaços, quebras de linha e comentários são <strong>descartados</strong>.</li>
+            <li>Se um caractere não se encaixa em nada, registra um <strong>erro léxico</strong> com linha e coluna e <strong>continua</strong>, para mostrar todos os problemas de uma vez.</li>
+            <li>O scanner <strong>não</strong> confere se o programa faz sentido (isso é a análise sintática, da próxima etapa).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>3. Os autômatos</h3>
+          <p>Cada tipo de lexema é reconhecido por um autômato finito. Círculo duplo é um estado em que o lexema pode terminar.</p>
+          <div class="afds">
+            <figure>
+              <svg viewBox="0 0 330 120" role="img" aria-labelledby="afd1-t">
+                <title id="afd1-t">Autômato do identificador: de q0, com letra ou sublinhado vai para q1; em q1, letras, dígitos ou sublinhado voltam a q1.</title>
+                <defs><marker id="seta1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+                <g fill="none" stroke="currentColor" stroke-width="1.6">
+                  <circle cx="45" cy="75" r="20"/>
+                  <circle cx="190" cy="75" r="20"/><circle cx="190" cy="75" r="15"/>
+                  <path d="M10,75 L25,75" marker-end="url(#seta1)"/>
+                  <path d="M65,75 L168,75" marker-end="url(#seta1)"/>
+                  <path d="M178,57 C160,10 220,10 202,57" marker-end="url(#seta1)"/>
+                </g>
+                <g fill="currentColor" font-size="13" text-anchor="middle">
+                  <text x="45" y="80">q0</text><text x="190" y="80">q1</text>
+                  <text x="117" y="66">letra ou _</text>
+                  <text x="260" y="22" font-size="11">letra, dígito ou _</text>
+                  <text x="190" y="112" font-size="11">identificador</text>
+                </g>
+              </svg>
+              <figcaption>Identificador (ex.: <code>numero</code>, <code>_x1</code>)</figcaption>
+            </figure>
+            <figure>
+              <svg viewBox="0 0 520 130" role="img" aria-labelledby="afd2-t">
+                <title id="afd2-t">Autômato de números: q0 com dígito vai a q1 (inteiro); q1 com ponto vai a q2; q2 com dígito vai a q3 (real); q1 e q3 repetem com dígitos.</title>
+                <defs><marker id="seta2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+                <g fill="none" stroke="currentColor" stroke-width="1.6">
+                  <circle cx="40" cy="80" r="20"/>
+                  <circle cx="165" cy="80" r="20"/><circle cx="165" cy="80" r="15"/>
+                  <circle cx="300" cy="80" r="20"/>
+                  <circle cx="430" cy="80" r="20"/><circle cx="430" cy="80" r="15"/>
+                  <path d="M5,80 L20,80" marker-end="url(#seta2)"/>
+                  <path d="M60,80 L143,80" marker-end="url(#seta2)"/>
+                  <path d="M185,80 L278,80" marker-end="url(#seta2)"/>
+                  <path d="M320,80 L408,80" marker-end="url(#seta2)"/>
+                  <path d="M153,63 C135,15 195,15 177,63" marker-end="url(#seta2)"/>
+                  <path d="M418,63 C400,15 460,15 442,63" marker-end="url(#seta2)"/>
+                </g>
+                <g fill="currentColor" font-size="13" text-anchor="middle">
+                  <text x="40" y="85">q0</text><text x="165" y="85">q1</text><text x="300" y="85">q2</text><text x="430" y="85">q3</text>
+                  <text x="102" y="72" font-size="11">dígito</text>
+                  <text x="232" y="72" font-size="11">ponto</text>
+                  <text x="364" y="72" font-size="11">dígito</text>
+                  <text x="165" y="12" font-size="11">dígito</text>
+                  <text x="430" y="12" font-size="11">dígito</text>
+                  <text x="165" y="120" font-size="11">inteiro</text>
+                  <text x="430" y="120" font-size="11">real</text>
+                </g>
+              </svg>
+              <figcaption>Números (ex.: <code>10</code> e <code>3.14</code>). Se o caminho falha (como em <code>3.</code>), é erro léxico.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section>
+          <h3>4. Como usar esta tela</h3>
+          <ol>
+            <li>Escolha um exemplo (o 8 tem erros léxicos de propósito) ou escreva seu código.</li>
+            <li>Clique em <strong>Analisar código</strong>.</li>
+            <li>Veja o <strong>resumo</strong>, o <strong>passo a passo</strong> do scanner (com os estados do autômato), o <strong>código colorido</strong> e a <strong>tabela de tokens</strong>.</li>
+            <li>No passo a passo, use <kbd>Próximo</kbd>, <kbd>Anterior</kbd> ou <kbd>Reproduzir</kbd> para acompanhar a leitura.</li>
+          </ol>
+        </section>
+
+        <section>
+          <h3>5. Categorias de token desta ferramenta</h3>
+          <div id="legenda-categorias" class="rolavel"></div>
+          <p class="ajuda">Comentários (<code>// linha</code> e <code>/* bloco */</code>) e espaços são ignorados, e não geram tokens.</p>
+        </section>
       </div>
+    </details>
 
-      <div class="campo">
-        <label for="entrada-codigo">Escreva, cole ou edite o programa</label>
-        <textarea id="entrada-codigo" class="codigo" rows="12" spellcheck="false"
-                  autocomplete="off" autocapitalize="off" wrap="off"
-                  placeholder="Digite aqui um programa em C…">int numero = 10;
+    <div class="layout">
+      <section class="cartao" aria-labelledby="titulo-entrada">
+        <h2 id="titulo-entrada">Código-fonte</h2>
+
+        <div class="campo">
+          <label for="seletor-exemplos">Carregar um exemplo</label>
+          <select id="seletor-exemplos">
+            <option value="">Selecione um exemplo…</option>
+          </select>
+          <p id="descricao-exemplo" class="ajuda" aria-live="polite">
+            Escolha um exemplo ou escreva o seu próprio programa abaixo.
+          </p>
+        </div>
+
+        <div class="campo">
+          <label for="entrada-codigo">Escreva, cole ou edite o programa</label>
+          <textarea id="entrada-codigo" class="codigo" rows="12" spellcheck="false"
+                    autocomplete="off" autocapitalize="off" wrap="off"
+                    placeholder="Digite aqui um programa em C…">int numero = 10;
 </textarea>
-        <p id="contador" class="ajuda" aria-live="off"></p>
-      </div>
+          <p id="contador" class="ajuda" aria-live="off"></p>
+        </div>
 
-      <div class="acoes">
-        <button id="btn-analisar" type="button" class="botao botao--primario">Analisar código</button>
-        <button id="btn-limpar" type="button" class="botao">Limpar</button>
-        <span class="atalho">Atalho: Ctrl + Enter</span>
-      </div>
-    </section>
+        <div class="acoes">
+          <button id="btn-analisar" type="button" class="botao botao--primario">Analisar código</button>
+          <button id="btn-limpar" type="button" class="botao">Limpar</button>
+          <span class="atalho">Atalho: Ctrl + Enter</span>
+        </div>
+      </section>
 
-    <section class="cartao" aria-labelledby="titulo-resultados">
-      <h2 id="titulo-resultados">Resultados</h2>
-      <div id="resultado" role="status" aria-live="polite" class="resultado resultado--vazio">
-        O resultado aparecerá aqui depois que você clicar em <strong>Analisar código</strong>.
-      </div>
-      <p class="ajuda">
-        Nesta etapa o sistema apenas recebe e valida o código-fonte.
-      </p>
-    </section>
+      <section class="cartao" aria-labelledby="titulo-resultados">
+        <h2 id="titulo-resultados">Resultados</h2>
+        <div id="resultado" role="status" aria-live="polite" class="resultado resultado--vazio">
+          O resultado aparecerá aqui depois que você clicar em <strong>Analisar código</strong>.
+        </div>
+        <div id="bloco-lexico" hidden>
+          <div id="resumo-lexico" class="resumo"></div>
+          <h3 class="subtitulo">Erros léxicos</h3>
+          <div id="erros-lexicos" class="erros"></div>
+        </div>
+        <p class="ajuda">
+          Nesta etapa o sistema faz a análise léxica. As análises sintática e semântica ainda não foram implementadas.
+        </p>
+      </section>
+    </div>
+
+    <div id="painel-lexico" hidden>
+      <section class="cartao" aria-labelledby="titulo-passos">
+        <h2 id="titulo-passos">Passo a passo do scanner</h2>
+        <p class="ajuda">
+          Veja o scanner lendo o código caractere a caractere. O trecho em destaque é o lexema que está sendo montado.
+        </p>
+        <pre id="passos-codigo" class="codigo-bloco" aria-label="Código com a leitura do scanner"></pre>
+        <p id="passos-narracao" class="narracao" aria-live="polite"></p>
+        <div id="passos-transicoes" class="transicoes" aria-label="Transições do autômato"></div>
+        <div class="controles" role="group" aria-label="Controles do passo a passo">
+          <button id="passo-inicio" type="button" class="botao">⏮ Início</button>
+          <button id="passo-token-anterior" type="button" class="botao">◀◀ Token anterior</button>
+          <button id="passo-anterior" type="button" class="botao">◀ Anterior</button>
+          <button id="passo-proximo" type="button" class="botao botao--primario">Próximo ▶</button>
+          <button id="passo-token-proximo" type="button" class="botao">Próximo token ▶▶</button>
+          <button id="passo-fim" type="button" class="botao">Fim ⏭</button>
+          <button id="passo-reproduzir" type="button" class="botao" aria-pressed="false">▶ Reproduzir</button>
+          <label class="velocidade">Velocidade
+            <select id="passo-velocidade">
+              <option value="lenta">Lenta</option>
+              <option value="normal" selected>Normal</option>
+              <option value="rapida">Rápida</option>
+            </select>
+          </label>
+          <span id="passos-info" class="passos-info"></span>
+        </div>
+        <div id="passos-emitidos" class="emitidos"></div>
+      </section>
+
+      <section class="cartao" aria-labelledby="titulo-colorido">
+        <h2 id="titulo-colorido">Código colorido e sequência de tokens</h2>
+        <h3 class="subtitulo">Código original (cada categoria com uma cor)</h3>
+        <pre id="codigo-colorido" class="codigo-bloco"></pre>
+        <h3 class="subtitulo">Sequência de tokens, no formato &lt;categoria, lexema&gt;</h3>
+        <div id="sequencia-tokens" class="chips"></div>
+      </section>
+
+      <section class="cartao" aria-labelledby="titulo-tabela">
+        <h2 id="titulo-tabela">Tabela de tokens</h2>
+        <div class="rolavel">
+          <table id="tabela-tokens" class="tabela">
+            <thead>
+              <tr><th class="num">#</th><th>Tipo</th><th>Lexema</th><th class="num">Linha</th><th class="num">Coluna</th></tr>
+            </thead>
+            <tbody id="tabela-tokens-corpo"></tbody>
+          </table>
+        </div>
+        <p id="tabela-aviso" class="ajuda"></p>
+      </section>
+    </div>
   </main>
 
+  <script src="visual.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

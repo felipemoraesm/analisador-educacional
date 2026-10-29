@@ -4,6 +4,7 @@
  *  - validarEntrada: validação local (não substitui a do backend)
  *  - criarCliente: comunicação HTTP com o backend, com classificação de falhas
  *  - iniciar: liga a lógica aos elementos da página
+ *  - visual.js: exibição didática dos tokens, erros e passo a passo (Etapa 3)
  * O arquivo funciona no navegador e também em Node (testes com jsdom).
  */
 (function (raiz, fabrica) {
@@ -15,13 +16,18 @@
 }(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
+  // No Node (testes) carrega o módulo; no navegador usa o global criado por visual.js.
+  var Visual = (typeof module === 'object' && typeof require === 'function')
+    ? require('./visual.js')
+    : (typeof AnalisadorVisual !== 'undefined' ? AnalisadorVisual : null);
+
   var MENSAGENS = {
     vazio: 'Informe um código-fonte antes de solicitar a análise.',
     espacos: 'O código informado contém apenas espaços em branco. Digite um programa para analisar.',
     comunicacao: 'Não foi possível comunicar com o servidor. Verifique a conexão e tente novamente.',
     inesperado: 'Ocorreu um erro inesperado. Tente novamente em instantes.',
     exemplos: 'Não foi possível carregar os exemplos. Você ainda pode digitar seu próprio código.',
-    proximasEtapas: 'As análises léxica, sintática e semântica serão adicionadas nas próximas etapas.'
+    proximasEtapas: 'As análises sintática e semântica serão adicionadas nas próximas etapas.'
   };
 
   var TEMPO_LIMITE_MS = 10000;
@@ -118,6 +124,7 @@
     var contador = doc.getElementById('contador');
     var exemplos = [];
     var ocupado = false;
+    var passoAPasso = null;
 
     function el(tag, classe, texto) {
       var e = doc.createElement(tag);
@@ -132,6 +139,11 @@
       if (titulo) resultado.appendChild(el('p', 'resultado__titulo', titulo));
       if (mensagem) resultado.appendChild(el('p', 'resultado__mensagem', mensagem));
       (extras || []).forEach(function (x) { resultado.appendChild(x); });
+    }
+
+    function esconderAnalise() {
+      if (Visual) Visual.esconderAnalise(doc, passoAPasso);
+      passoAPasso = null;
     }
 
     function atualizarContador() {
@@ -152,6 +164,7 @@
 
       var v = validarEntrada(codigo);
       if (!v.ok) {
+        esconderAnalise();
         mostrar('resultado--aviso', 'Entrada inválida', v.mensagem);
         entrada.focus();
         return;
@@ -163,18 +176,28 @@
         var r = await cliente.analisar(codigo);
         if (r.tipo === 'sucesso') {
           var d = r.dados;
-          mostrar('resultado--sucesso', d.mensagem || 'Código recebido com sucesso.',
+          var comErros = d.sucesso === false;
+          mostrar(comErros ? 'resultado--aviso' : 'resultado--sucesso',
+            d.mensagem || 'Código recebido com sucesso.',
             d.linhas + (d.linhas === 1 ? ' linha' : ' linhas') + ' · ' + d.caracteres +
             (d.caracteres === 1 ? ' caractere' : ' caracteres'),
             [el('p', 'resultado__nota', MENSAGENS.proximasEtapas)]);
+          esconderAnalise();
+          if (Visual && Array.isArray(d.tokens)) {
+            passoAPasso = Visual.mostrarAnalise(doc, codigo, d);
+          }
         } else if (r.tipo === 'entrada') {
+          esconderAnalise();
           mostrar('resultado--aviso', 'Entrada inválida', r.mensagem);
         } else if (r.tipo === 'comunicacao') {
+          esconderAnalise();
           mostrar('resultado--erro', 'Falha de comunicação', r.mensagem);
         } else {
+          esconderAnalise();
           mostrar('resultado--erro', 'Erro inesperado', r.mensagem);
         }
       } catch (e) {
+        esconderAnalise();
         mostrar('resultado--erro', 'Erro inesperado', MENSAGENS.inesperado);
       } finally {
         definirOcupado(false); // a interface nunca fica travada
@@ -194,6 +217,7 @@
       entrada.value = '';
       seletor.value = '';
       descricao.textContent = 'Escolha um exemplo ou escreva o seu próprio programa abaixo.';
+      esconderAnalise();
       resultado.className = 'resultado resultado--vazio';
       resultado.textContent = 'O resultado aparecerá aqui depois que você clicar em Analisar código.';
       atualizarContador();
@@ -222,8 +246,11 @@
       if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); analisar(); }
     });
 
+    var legenda = doc.getElementById('legenda-categorias');
+    if (Visual && legenda) Visual.renderLegenda(doc, legenda);
+
     atualizarContador();
-    return { pronto: carregarExemplos(), analisar: analisar };
+    return { pronto: carregarExemplos(), analisar: analisar, passoAPasso: function () { return passoAPasso; } };
   }
 
   var api = { validarEntrada: validarEntrada, contar: contar, criarCliente: criarCliente, iniciar: iniciar, MENSAGENS: MENSAGENS };

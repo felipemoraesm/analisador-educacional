@@ -81,3 +81,99 @@ select:focus-visible, textarea:focus-visible, .botao:focus-visible {
 .resultado--aviso   { background: var(--aviso-fundo); border-color: var(--aviso-borda); color: var(--aviso-texto); }
 .resultado--erro    { background: var(--erro-fundo); border-color: var(--erro-borda); color: var(--erro-texto); }
 .resultado__nota { font-size: .85rem; opacity: .9; }
+
+/* ===================== Etapa 3: análise léxica ===================== */
+.pagina { max-width: 1200px; margin: 1.25rem auto; padding: 0 1rem; }
+.pagina .layout { margin: 1.25rem 0; padding: 0; max-width: none; }
+#painel-lexico .cartao { margin-bottom: 1.25rem; }
+#painel-lexico[hidden], #bloco-lexico[hidden] { display: none; }
+.subtitulo { margin: 1rem 0 .4rem; font-size: .95rem; }
+.rolavel { overflow-x: auto; }
+
+/* Cores por categoria (matiz definido por classe; contraste garantido nos dois temas) */
+.tk {
+  --h: 0; --s: 70%;
+  background: hsl(var(--h) var(--s) 90%); color: hsl(var(--h) 60% 18%);
+  border-bottom: 2px solid hsl(var(--h) 65% 45%);
+  border-radius: 4px; padding: 0 .2em;
+}
+.tk-reservada { --h: 270; } .tk-identificador { --h: 215; } .tk-inteiro { --h: 165; }
+.tk-real { --h: 125; } .tk-string { --h: 24; } .tk-char { --h: 42; }
+.tk-aritmetico { --h: 335; } .tk-relacional { --h: 8; } .tk-logico { --h: 290; }
+.tk-atribuicao { --h: 190; } .tk-delimitador { --h: 220; --s: 10%; } .tk-outro { --h: 0; --s: 5%; }
+.tk-comentario { --h: 0; --s: 0%; font-style: italic; border-bottom-style: dashed; }
+.tk-erro {
+  background: var(--erro-fundo); color: var(--erro-texto); border-bottom: 0;
+  text-decoration: underline wavy hsl(0 80% 50%); text-underline-offset: 3px;
+}
+@media (prefers-color-scheme: dark) {
+  .tk { background: hsl(var(--h) calc(var(--s) - 25%) 24%); color: hsl(var(--h) 80% 90%); border-bottom-color: hsl(var(--h) 60% 60%); }
+  .tk-comentario { background: hsl(0 0% 22%); color: hsl(0 0% 75%); }
+  .tk-erro { background: var(--erro-fundo); color: var(--erro-texto); }
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip, .seq-item { font-size: .85rem; padding: .1rem .55rem; }
+.seq-item { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.seq-mais { color: var(--texto-suave); font-size: .85rem; align-self: center; }
+.resumo__linha { margin: 0 0 .6rem; font-weight: 600; }
+.erros__vazio { margin: .2rem 0 0; color: var(--texto-suave); }
+.erros__lista { margin: 0; padding-left: 1.2rem; }
+.erro-item { margin-bottom: .5rem; color: var(--erro-texto); background: var(--erro-fundo); border-left: 4px solid var(--erro-borda); border-radius: 6px; padding: .45rem .6rem; list-style-position: inside; }
+.erro-item__dica { display: block; margin-top: .2rem; font-size: .88rem; opacity: .95; }
+
+.codigo-bloco {
+  margin: 0 0 .8rem; padding: .8rem 1rem; border: 1px solid var(--borda); border-radius: 8px;
+  background: var(--fundo); overflow: auto; max-height: 22rem; tab-size: 4; line-height: 1.6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: .92rem;
+}
+.passo-lido { opacity: .55; }
+.passo-resto { color: var(--texto-suave); }
+.passo-atual { outline: 2px solid var(--destaque); outline-offset: 1px; border-radius: 3px; font-weight: 700; padding: 0 .1em; }
+.narracao { min-height: 3.4rem; margin: 0 0 .6rem; padding: .6rem .8rem; border-left: 4px solid var(--destaque); background: var(--fundo); border-radius: 6px; }
+.transicoes { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; min-height: 2rem; }
+.trans {
+  display: inline-flex; align-items: baseline; gap: .3rem; padding: .15rem .5rem; font-size: .82rem;
+  border: 1px solid var(--borda); border-radius: 999px; background: var(--superficie);
+}
+.trans b { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .95rem; }
+.trans i { color: var(--texto-suave); }
+.trans u { text-decoration: none; font-weight: 700; }
+.trans--atual { border-color: var(--destaque); box-shadow: 0 0 0 2px var(--destaque); }
+.trans--erro { border-color: var(--erro-borda); color: var(--erro-texto); }
+.trans-mais { color: var(--texto-suave); align-self: center; }
+.controles { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.controles .botao { padding: .55rem .8rem; min-height: 2.75rem; }
+.velocidade { display: inline-flex; align-items: center; gap: .4rem; margin: 0; font-weight: 400; }
+.velocidade select { width: auto; padding: .4rem .5rem; }
+.passos-info { color: var(--texto-suave); font-size: .9rem; margin-left: auto; }
+.emitidos { margin-top: .9rem; }
+.emitidos__titulo { margin: 0 0 .4rem; font-size: .9rem; color: var(--texto-suave); }
+
+.tabela { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.tabela th, .tabela td { padding: .4rem .6rem; border-bottom: 1px solid var(--borda); text-align: left; vertical-align: top; }
+.tabela th.num { text-align: right; }
+.tabela th { font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--texto-suave); }
+.tabela .num { text-align: right; font-variant-numeric: tabular-nums; }
+.tabela caption { text-align: left; padding: .3rem 0; font-weight: 600; }
+.tabela code, .tutorial code, kbd { font-family: ui-monospace, Menlo, Consolas, monospace; }
+kbd { border: 1px solid var(--borda); border-radius: 4px; padding: 0 .3rem; background: var(--fundo); font-size: .85em; }
+
+.tutorial { margin-bottom: 1.25rem; }
+.tutorial > summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+.tutorial__corpo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.5rem; margin-top: .9rem; }
+.tutorial__corpo h3 { margin: 0 0 .4rem; font-size: 1rem; }
+.tutorial__corpo ul, .tutorial__corpo ol { margin: .3rem 0; padding-left: 1.2rem; }
+.tutorial__corpo section:nth-child(3), .tutorial__corpo section:nth-child(5) { grid-column: 1 / -1; }
+.afds { display: flex; flex-wrap: wrap; gap: 1rem 2rem; }
+.afds figure { margin: 0; flex: 1 1 280px; }
+.afds svg { width: 100%; height: auto; color: var(--texto); }
+.afds figcaption { font-size: .85rem; color: var(--texto-suave); }
+
+@media (max-width: 860px) {
+  .tutorial__corpo { grid-template-columns: 1fr; }
+  .controles .botao { flex: 1 1 calc(50% - .5rem); }
+  .passos-info { margin-left: 0; width: 100%; }
+  .topo h1 { font-size: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }

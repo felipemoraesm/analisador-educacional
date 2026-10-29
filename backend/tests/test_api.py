@@ -24,8 +24,11 @@ def test_codigo_valido():
     r = client.post("/api/analisar", json={"codigo": "int numero = 10;"})
     assert r.status_code == 200
     corpo = r.json()
-    assert corpo["recebido"] is True
-    assert corpo["mensagem"] == "Código recebido com sucesso."
+    assert corpo["recebido"] is True  # campo mantido da Etapa 2
+    assert corpo["sucesso"] is True
+    # Etapa 3: a mensagem passou a descrever a análise léxica (alteração intencional,
+    # documentada em docs/testes.md); antes era "Código recebido com sucesso."
+    assert corpo["mensagem"] == "Análise léxica concluída: 5 tokens, nenhum erro léxico."
     assert corpo["linhas"] == 1
     assert corpo["caracteres"] == len("int numero = 10;")
 
@@ -42,9 +45,12 @@ def test_caracteres_especiais_e_unicode():
     assert r.json()["caracteres"] == len(codigo)
 
 
-def test_codigo_com_erros_intencionais_e_recebido():
+def test_codigo_com_erros_sintaticos_e_tokenizado_normalmente():
     r = client.post("/api/analisar", json={"codigo": "int x = 10\nint y = x + ;"})
-    assert r.status_code == 200 and r.json()["recebido"] is True
+    corpo = r.json()
+    assert r.status_code == 200 and corpo["recebido"] is True
+    assert corpo["sucesso"] is True and corpo["erros"] == []
+    assert corpo["resumo"]["total_tokens"] == 10
 
 
 # ---------- Validações de entrada ----------
@@ -153,3 +159,81 @@ def test_todo_exemplo_e_aceito_pelo_endpoint_de_analise():
     for e in client.get("/api/exemplos").json()["exemplos"]:
         r = client.post("/api/analisar", json={"codigo": e["codigo"]})
         assert r.status_code == 200, e["id"]
+
+
+# ---------- Etapa 3: contrato da análise léxica ----------
+def test_resposta_lexica_segue_o_contrato():
+    corpo = client.post("/api/analisar", json={"codigo": "int numero = 10; // fim"}).json()
+    assert set(corpo) == {"recebido", "sucesso", "mensagem", "linhas", "caracteres",
+                          "tokens", "erros", "comentarios", "resumo"}
+    assert corpo["tokens"][0] == {
+        "tipo": "PALAVRA_RESERVADA", "lexema": "int", "linha": 1, "coluna": 1,
+        "inicio": 0, "fim": 3,
+        "caminho": [
+            {"c": "i", "classe": "letra", "estado": "IDENT"},
+            {"c": "n", "classe": "letra", "estado": "IDENT"},
+            {"c": "t", "classe": "letra", "estado": "IDENT"},
+        ],
+    }
+    assert corpo["comentarios"][0]["tipo"] == "COMENTARIO_LINHA"
+    assert set(corpo["resumo"]) == {"total_tokens", "total_erros", "total_comentarios", "por_categoria"}
+
+
+def test_erro_lexico_retorna_200_com_sucesso_false_e_erros():
+    r = client.post("/api/analisar", json={"codigo": "int a;\nint b = @;"})
+    assert r.status_code == 200  # a análise foi feita; erros léxicos são resultado, não requisição inválida
+    corpo = r.json()
+    assert corpo["recebido"] is True and corpo["sucesso"] is False
+    assert corpo["mensagem"] == "Análise léxica concluída: 7 tokens e 1 erro léxico."
+    erro = corpo["erros"][0]
+    assert erro["tipo"] == "ERRO_LEXICO" and erro["lexema"] == "@"
+    assert (erro["linha"], erro["coluna"]) == (2, 9)
+    assert erro["mensagem"] == "Caractere não reconhecido: '@'"
+    assert {"dica", "inicio", "fim", "caminho"} <= set(erro)
+    assert [t["lexema"] for t in corpo["tokens"]][-2:] == ["=", ";"]  # continua após o erro
+
+
+def test_varios_erros_lexicos_na_mesma_resposta():
+    corpo = client.post("/api/analisar", json={"codigo": "@ # $"}).json()
+    assert [e["lexema"] for e in corpo["erros"]] == ["@", "#", "$"]
+    assert corpo["mensagem"] == "Análise léxica concluída: 0 tokens e 3 erros léxicos."
+
+
+def test_somente_comentarios_e_sucesso_sem_tokens():
+    corpo = client.post("/api/analisar", json={"codigo": "// so comentario"}).json()
+    assert corpo["sucesso"] is True and corpo["tokens"] == []
+    assert corpo["resumo"]["total_comentarios"] == 1
+
+
+def test_endpoint_com_unicode_e_emoji_devolve_posicoes_utf16():
+    codigo = 'x = "😀"; y'
+    corpo = client.post("/api/analisar", json={"codigo": codigo}).json()
+    y = corpo["tokens"][-1]
+    assert y["lexema"] == "y" and (y["inicio"], y["fim"]) == (10, 11)  # 😀 ocupa 2 unidades UTF-16
+
+
+def test_erro_do_scanner_nao_vaza_detalhes(monkeypatch):
+    def quebra(_):
+        raise RuntimeError("detalhe interno /srv/segredo")
+
+    monkeypatch.setattr("app.main.tokenizar", quebra)
+    r = client.post("/api/analisar", json={"codigo": "int a;"})
+    assert r.status_code == 500 and r.json()["erro"] == "erro_interno"
+    assert "segredo" not in r.text
+
+
+def test_validacao_da_etapa_2_continua_antes_do_scanner(monkeypatch):
+    chamadas = []
+    monkeypatch.setattr("app.main.tokenizar", lambda c: chamadas.append(c))
+    assert client.post("/api/analisar", json={"codigo": ""}).status_code == 400
+    assert client.post("/api/analisar", json={"codigo": "  \n"}).status_code == 400
+    assert client.post("/api/analisar", json={}).status_code == 400
+    assert chamadas == []  # o scanner nem é chamado para entradas inválidas
+
+
+def test_exemplos_lexicos_tem_o_resultado_esperado():
+    por_id = {e["id"]: e["codigo"] for e in client.get("/api/exemplos").json()["exemplos"]}
+    ok = client.post("/api/analisar", json={"codigo": por_id["operadores"]}).json()
+    assert ok["sucesso"] is True and ok["resumo"]["por_categoria"]["OPERADOR_RELACIONAL"] >= 3
+    ruim = client.post("/api/analisar", json={"codigo": por_id["erros_lexicos"]}).json()
+    assert ruim["sucesso"] is False and len(ruim["erros"]) == 8

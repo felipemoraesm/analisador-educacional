@@ -1,0 +1,534 @@
+{
+ "codigo": "int valor = 10;\nint total = valor @ 2;\nfloat taxa = 3.;\nchar s = \"aberta;\n/* sem fim\n",
+ "resposta": {
+  "recebido": true,
+  "sucesso": false,
+  "mensagem": "Análise léxica concluída: 18 tokens e 4 erros léxicos.",
+  "linhas": 5,
+  "caracteres": 85,
+  "tokens": [
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "int",
+    "linha": 1,
+    "coluna": 1,
+    "inicio": 0,
+    "fim": 3,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "n",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "valor",
+    "linha": 1,
+    "coluna": 5,
+    "inicio": 4,
+    "fim": 9,
+    "caminho": [
+     {
+      "c": "v",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "o",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 1,
+    "coluna": 11,
+    "inicio": 10,
+    "fim": 11,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "10",
+    "linha": 1,
+    "coluna": 13,
+    "inicio": 12,
+    "fim": 14,
+    "caminho": [
+     {
+      "c": "1",
+      "classe": "digito",
+      "estado": "INT"
+     },
+     {
+      "c": "0",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 1,
+    "coluna": 15,
+    "inicio": 14,
+    "fim": 15,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "int",
+    "linha": 2,
+    "coluna": 1,
+    "inicio": 16,
+    "fim": 19,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "n",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "total",
+    "linha": 2,
+    "coluna": 5,
+    "inicio": 20,
+    "fim": 25,
+    "caminho": [
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "o",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 2,
+    "coluna": 11,
+    "inicio": 26,
+    "fim": 27,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "valor",
+    "linha": 2,
+    "coluna": 13,
+    "inicio": 28,
+    "fim": 33,
+    "caminho": [
+     {
+      "c": "v",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "o",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "2",
+    "linha": 2,
+    "coluna": 21,
+    "inicio": 36,
+    "fim": 37,
+    "caminho": [
+     {
+      "c": "2",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 2,
+    "coluna": 22,
+    "inicio": 37,
+    "fim": 38,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "float",
+    "linha": 3,
+    "coluna": 1,
+    "inicio": 39,
+    "fim": 44,
+    "caminho": [
+     {
+      "c": "f",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "o",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "taxa",
+    "linha": 3,
+    "coluna": 7,
+    "inicio": 45,
+    "fim": 49,
+    "caminho": [
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "x",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 3,
+    "coluna": 12,
+    "inicio": 50,
+    "fim": 51,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 3,
+    "coluna": 16,
+    "inicio": 54,
+    "fim": 55,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   },
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "char",
+    "linha": 4,
+    "coluna": 1,
+    "inicio": 56,
+    "fim": 60,
+    "caminho": [
+     {
+      "c": "c",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "h",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "s",
+    "linha": 4,
+    "coluna": 6,
+    "inicio": 61,
+    "fim": 62,
+    "caminho": [
+     {
+      "c": "s",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 4,
+    "coluna": 8,
+    "inicio": 63,
+    "fim": 64,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   }
+  ],
+  "erros": [
+   {
+    "tipo": "ERRO_LEXICO",
+    "lexema": "@",
+    "linha": 2,
+    "coluna": 19,
+    "inicio": 34,
+    "fim": 35,
+    "mensagem": "Caractere não reconhecido: '@'",
+    "dica": "Verifique se ele faz parte do subconjunto suportado.",
+    "caminho": [
+     {
+      "c": "@",
+      "classe": "simbolo",
+      "estado": "ERRO"
+     }
+    ]
+   },
+   {
+    "tipo": "ERRO_LEXICO",
+    "lexema": "3.",
+    "linha": 3,
+    "coluna": 14,
+    "inicio": 52,
+    "fim": 54,
+    "mensagem": "Literal real malformado '3.': faltam dígitos depois do ponto decimal.",
+    "dica": "Escreva, por exemplo, 3.0 em vez de 3.",
+    "caminho": [
+     {
+      "c": "3",
+      "classe": "digito",
+      "estado": "INT"
+     },
+     {
+      "c": ".",
+      "classe": "ponto",
+      "estado": "ERRO"
+     }
+    ]
+   },
+   {
+    "tipo": "ERRO_LEXICO",
+    "lexema": "\"aberta;",
+    "linha": 4,
+    "coluna": 10,
+    "inicio": 65,
+    "fim": 73,
+    "mensagem": "String não fechada: faltou a aspa de fechamento (\") antes do fim da linha.",
+    "dica": "Strings começam e terminam com aspas duplas na mesma linha.",
+    "caminho": [
+     {
+      "c": "\"",
+      "classe": "aspas",
+      "estado": "STRING"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "STRING"
+     },
+     {
+      "c": "b",
+      "classe": "letra",
+      "estado": "STRING"
+     },
+     {
+      "c": "e",
+      "classe": "letra",
+      "estado": "STRING"
+     },
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "STRING"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "STRING"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "STRING"
+     },
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "ERRO"
+     }
+    ]
+   },
+   {
+    "tipo": "ERRO_LEXICO",
+    "lexema": "/* sem fim\n",
+    "linha": 5,
+    "coluna": 1,
+    "inicio": 74,
+    "fim": 85,
+    "mensagem": "Comentário de bloco não fechado: faltou o '*/'.",
+    "dica": "Todo o restante do código foi consumido como comentário. Feche o comentário com */.",
+    "caminho": []
+   }
+  ],
+  "comentarios": [],
+  "resumo": {
+   "total_tokens": 18,
+   "total_erros": 4,
+   "total_comentarios": 0,
+   "por_categoria": {
+    "PALAVRA_RESERVADA": 4,
+    "IDENTIFICADOR": 5,
+    "LITERAL_INTEIRO": 2,
+    "OPERADOR_ATRIBUICAO": 4,
+    "DELIMITADOR": 3
+   }
+  }
+ }
+}

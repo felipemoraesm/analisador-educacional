@@ -14,6 +14,7 @@ post() { curl -s -o /tmp/resp.json -w "%{http_code}" -X POST "$BASE/api/analisar
 
 echo "Verificando $BASE"
 checar "página inicial contém o título" "Analisador Educacional" "$(curl -s "$BASE/")"
+checar "página carrega o módulo de visualização" "visual.js" "$(curl -s "$BASE/")"
 checar "GET /api/hello (Etapa 1)" '"Hello, World!"' "$(curl -s "$BASE/api/hello")"
 checar "GET /api/health" '"status":"ok"' "$(curl -s "$BASE/api/health")"
 exemplos="$(curl -s "$BASE/api/exemplos" | grep -o '"id"' | wc -l)"
@@ -22,6 +23,17 @@ checar "GET /api/exemplos devolve ao menos 3 exemplos" "OK" "$([ "$exemplos" -ge
 codigo=$(post '{"codigo":"int numero = 10;"}')
 checar "POST código válido -> 200" "200" "$codigo"
 checar "POST código válido -> recebido:true" '"recebido":true' "$(cat /tmp/resp.json)"
+checar "POST código válido -> sucesso:true" '"sucesso":true' "$(cat /tmp/resp.json)"
+checar "scanner: classifica 'int' como palavra reservada" '"tipo":"PALAVRA_RESERVADA","lexema":"int","linha":1,"coluna":1' "$(cat /tmp/resp.json)"
+checar "scanner: resumo com 5 tokens" '"total_tokens":5' "$(cat /tmp/resp.json)"
+
+codigo=$(post '{"codigo":"int a = 1 @ 2;"}')
+checar "erro léxico continua com HTTP 200" "200" "$codigo"
+checar "erro léxico -> sucesso:false" '"sucesso":false' "$(cat /tmp/resp.json)"
+checar "erro léxico -> ERRO_LEXICO do '@'" '"tipo":"ERRO_LEXICO","lexema":"@","linha":1,"coluna":11' "$(cat /tmp/resp.json)"
+
+codigo=$(post '{"codigo":"int x = 10\nint y = x + ;"}')
+checar "erros sintáticos não geram erro léxico" '"erros":[]' "$(cat /tmp/resp.json)"
 
 codigo=$(post '{"codigo":""}')
 checar "POST vazio -> 400" "400" "$codigo"
