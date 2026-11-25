@@ -6,13 +6,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, StrictStr
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from .analise import montar_resposta
 from .exemplos import EXEMPLOS
+from .gramatica import gramatica_completa
 from .scanner import tokenizar
 from .validacao import validar_codigo
 
 logger = logging.getLogger("analisador")
 
-app = FastAPI(title="Analisador Educacional - Backend", version="0.3.0")
+app = FastAPI(title="Analisador Educacional - Backend", version="0.4.0")
 
 MSG_REQUISICAO_INVALIDA = (
     'Requisição inválida. Envie um JSON no formato {"codigo": "<texto>"}.'
@@ -69,39 +71,23 @@ def listar_exemplos():
     return {"exemplos": EXEMPLOS}
 
 
-def _plural(n: int, singular: str, plural: str) -> str:
-    return f"{n} {singular if n == 1 else plural}"
-
-
-def _mensagem_lexica(resumo: dict) -> str:
-    tokens = _plural(resumo["total_tokens"], "token", "tokens")
-    if resumo["total_erros"] == 0:
-        return f"Análise léxica concluída: {tokens}, nenhum erro léxico."
-    erros = _plural(resumo["total_erros"], "erro léxico", "erros léxicos")
-    return f"Análise léxica concluída: {tokens} e {erros}."
+@app.get("/api/gramatica")
+def gramatica():
+    """Gramática EBNF do subconjunto, precedência e metadados dos nós da AST."""
+    return gramatica_completa()
 
 
 @app.post("/api/analisar")
 def analisar(req: AnaliseRequest):
-    """Valida a entrada e executa a análise léxica (Etapa 3).
+    """Valida a entrada, executa o scanner (Etapa 3) e, se não houver erros léxicos, o parser (Etapa 4).
 
-    Um código com erros léxicos NÃO é uma requisição inválida: a análise foi
-    realizada e os erros fazem parte do resultado (HTTP 200, ``sucesso: false``).
-    As análises sintática e semântica serão acrescentadas nas próximas etapas.
+    Código com erros léxicos ou sintáticos NÃO é uma requisição inválida: a análise
+    foi realizada e os erros fazem parte do resultado (HTTP 200).
+    A análise semântica será acrescentada na Etapa 5.
     """
     erro = validar_codigo(req.codigo)
     if erro:
         return _erro(erro.status, erro.codigo, erro.mensagem)
 
     lexico = tokenizar(req.codigo)
-    return {
-        "recebido": True,
-        "sucesso": lexico["sucesso"],
-        "mensagem": _mensagem_lexica(lexico["resumo"]),
-        "linhas": len(req.codigo.splitlines()),
-        "caracteres": len(req.codigo),
-        "tokens": lexico["tokens"],
-        "erros": lexico["erros"],
-        "comentarios": lexico["comentarios"],
-        "resumo": lexico["resumo"],
-    }
+    return montar_resposta(req.codigo, lexico)

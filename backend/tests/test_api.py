@@ -164,10 +164,12 @@ def test_todo_exemplo_e_aceito_pelo_endpoint_de_analise():
 # ---------- Etapa 3: contrato da análise léxica ----------
 def test_resposta_lexica_segue_o_contrato():
     corpo = client.post("/api/analisar", json={"codigo": "int numero = 10; // fim"}).json()
-    assert set(corpo) == {"recebido", "sucesso", "mensagem", "linhas", "caracteres",
-                          "tokens", "erros", "comentarios", "resumo"}
+    # Etapa 4: acrescentados "lexico" e "sintatico" (aditivo); todos os campos da Etapa 3 permanecem
+    etapa3 = {"recebido", "sucesso", "mensagem", "linhas", "caracteres", "tokens", "erros", "comentarios", "resumo"}
+    assert set(corpo) == etapa3 | {"lexico", "sintatico"}
     assert corpo["tokens"][0] == {
         "tipo": "PALAVRA_RESERVADA", "lexema": "int", "linha": 1, "coluna": 1,
+        "fim_linha": 1, "fim_coluna": 4,  # Etapa 4: campos acrescentados (aditivo)
         "inicio": 0, "fim": 3,
         "caminho": [
             {"c": "i", "classe": "letra", "estado": "IDENT"},
@@ -237,3 +239,121 @@ def test_exemplos_lexicos_tem_o_resultado_esperado():
     assert ok["sucesso"] is True and ok["resumo"]["por_categoria"]["OPERADOR_RELACIONAL"] >= 3
     ruim = client.post("/api/analisar", json={"codigo": por_id["erros_lexicos"]}).json()
     assert ruim["sucesso"] is False and len(ruim["erros"]) == 8
+
+
+def test_surrogate_isolado_retorna_400_e_nao_500():
+    r = client.post("/api/analisar", content=b'{"codigo": "int a; \\ud800"}',
+                    headers={"Content-Type": "application/json"})
+    assert r.status_code == 400
+    assert r.json()["erro"] == "codigo_invalido"
+
+
+# ---------- Etapa 4: análise sintática no endpoint ----------
+def _analisar(codigo):
+    r = client.post("/api/analisar", json={"codigo": codigo})
+    assert r.status_code == 200
+    return r.json()
+
+
+def test_codigo_valido_retorna_tokens_ast_e_sucesso():
+    corpo = _analisar("int resultado = 10 + 5 * 2;")
+    assert corpo["lexico"]["sucesso"] is True and len(corpo["lexico"]["tokens"]) == 9
+    sint = corpo["sintatico"]
+    assert sint["executado"] is True and sint["sucesso"] is True and sint["erros"] == []
+    assert sint["ast"]["tipo"] == "PROGRAMA" and sint["motivo"] is None
+    assert sint["mensagem"] == "Análise sintática concluída: programa válido (AST com 7 nós)."
+    assert sint["resumo"]["total_nos"] == 7 and "ADICAO" in sint["regras"]
+
+
+def test_campos_da_etapa_3_foram_preservados_e_coincidem_com_lexico():
+    corpo = _analisar("int a = 1; @")
+    for campo in ("sucesso", "tokens", "erros", "comentarios", "resumo"):
+        assert corpo[campo] == corpo["lexico"][campo], campo
+    assert corpo["recebido"] is True and corpo["mensagem"].startswith("Análise léxica concluída")
+
+
+def test_erro_sintatico_retorna_erros_e_ast_nula():
+    corpo = _analisar("int numero = 10}")
+    assert corpo["lexico"]["sucesso"] is True  # os tokens são válidos
+    sint = corpo["sintatico"]
+    assert sint["executado"] is True and sint["sucesso"] is False and sint["ast"] is None
+    assert sint["erros"] == [{
+        "tipo": "ERRO_SINTATICO", "linha": 1, "coluna": 16, "inicio": 15, "fim": 16,
+        "encontrado": "}", "encontrado_tipo": "DELIMITADOR", "esperado": [";"],
+        "mensagem": "Era esperado ';' ao final da declaração, mas foi encontrado '}'.",
+        "regra": 'declaracao = tipo IDENTIFICADOR [ "=" expressao ] ";" ;', "dica": None,
+    }]
+    assert corpo["sucesso"] is True  # "sucesso" de nível superior continua sendo o léxico (compatibilidade)
+
+
+def test_erro_lexico_nao_executa_o_parser(monkeypatch):
+    chamadas = []
+    monkeypatch.setattr("app.analise.analisar_sintaxe", lambda *a: chamadas.append(a))
+    corpo = _analisar("int a = @;")
+    assert chamadas == []  # decisão de projeto: sem parser quando há erro léxico
+    sint = corpo["sintatico"]
+    assert sint["executado"] is False and sint["sucesso"] is None and sint["ast"] is None
+    assert "erros léxicos" in sint["motivo"] and sint["erros"] == []
+    assert corpo["sucesso"] is False and corpo["erros"][0]["lexema"] == "@"  # erros léxicos continuam aparecendo
+
+
+def test_codigo_vazio_continua_sendo_400_como_na_etapa_2():
+    assert client.post("/api/analisar", json={"codigo": ""}).status_code == 400
+    assert client.post("/api/analisar", json={"codigo": "   "}).status_code == 400
+
+
+def test_somente_comentarios_gera_programa_vazio():
+    sint = _analisar("// nada")["sintatico"]
+    assert sint["sucesso"] is True and sint["ast"]["filhos"] == [] and "programa vazio" in sint["mensagem"]
+
+
+def test_falha_inesperada_do_parser_retorna_500_generico(monkeypatch):
+    def quebra(*_):
+        raise RuntimeError("detalhe /srv/segredo")
+
+    monkeypatch.setattr("app.analise.analisar_sintaxe", quebra)
+    r = client.post("/api/analisar", json={"codigo": "int a;"})
+    assert r.status_code == 500 and "segredo" not in r.text
+
+
+def test_ast_profunda_dentro_do_limite_e_serializada_sem_erro():
+    corpo = _analisar("x = " + " + ".join(["1"] * 100) + ";")
+    assert corpo["sintatico"]["sucesso"] is True
+
+
+def test_ast_acima_da_altura_maxima_vira_erro_claro_e_nao_500():
+    corpo = _analisar("x = " + " + ".join(["1"] * 400) + ";")
+    assert corpo["sintatico"]["sucesso"] is False
+    assert "profunda demais" in corpo["sintatico"]["erros"][0]["mensagem"]
+
+
+def test_entrada_no_limite_de_tamanho_e_processada_rapido():
+    import time
+    codigo = "int a = 1;\n" * 1800
+    inicio = time.perf_counter()
+    corpo = _analisar(codigo)
+    assert time.perf_counter() - inicio < 5
+    assert corpo["sintatico"]["sucesso"] is True and corpo["sintatico"]["texto"] is None
+
+
+def test_exemplos_da_etapa_4_tem_o_resultado_esperado():
+    por_id = {e["id"]: e["codigo"] for e in client.get("/api/exemplos").json()["exemplos"]}
+    for id_ in ("declaracao", "aritmetica", "condicional", "if_else", "literais", "operadores",
+                "precedencia", "funcoes", "aninhamento"):
+        assert _analisar(por_id[id_])["sintatico"]["sucesso"] is True, id_
+    assert len(_analisar(por_id["erro_intencional"])["sintatico"]["erros"]) == 2
+    assert len(_analisar(por_id["erros_sintaticos"])["sintatico"]["erros"]) == 6
+    lexico_ruim = _analisar(por_id["erros_lexicos"])
+    assert lexico_ruim["sintatico"]["executado"] is False
+
+
+def test_resposta_do_endpoint_e_json_valido_com_utf8():
+    r = client.post("/api/analisar", json={"codigo": 'char s = "ação ✓ 😀";'})
+    assert r.status_code == 200 and r.json()["sintatico"]["sucesso"] is True
+
+
+def test_regressao_scanner_endpoint_etapa_3_tokens_inalterados():
+    corpo = _analisar("int numero = 10;")
+    assert [(t["tipo"], t["lexema"]) for t in corpo["tokens"]] == [
+        ("PALAVRA_RESERVADA", "int"), ("IDENTIFICADOR", "numero"), ("OPERADOR_ATRIBUICAO", "="),
+        ("LITERAL_INTEIRO", "10"), ("DELIMITADOR", ";")]

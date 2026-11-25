@@ -12,6 +12,8 @@ o estado em que o autômato ficou.
 
 Convenções de posição
 - ``linha`` e ``coluna`` começam em 1 e contam caracteres (um tab conta 1).
+- Tokens também trazem ``fim_linha`` e ``fim_coluna`` (posição logo após o último
+  caractere), usados pelo parser para registrar o trecho de cada nó da AST.
 - ``inicio`` e ``fim`` são deslocamentos (início inclusivo, fim exclusivo) em
   unidades UTF-16, para o frontend poder fatiar a string do JavaScript
   diretamente, mesmo com emojis.
@@ -22,7 +24,7 @@ Este módulo não valida a estrutura do programa (isso é papel do parser).
 import re
 from typing import Callable, Dict, List
 
-PALAVRAS_RESERVADAS = ("int", "float", "char", "if", "else", "while", "return")
+PALAVRAS_RESERVADAS = ("int", "float", "char", "void", "if", "else", "while", "return")
 
 # Categorias de token, na ordem em que aparecem nos resumos.
 CATEGORIAS = (
@@ -215,6 +217,8 @@ class _Scanner:
             "lexema": _exibir(self.t[ini:fim]),
             "linha": linha,
             "coluna": col,
+            "fim_linha": linha,  # nenhum token ocupa mais de uma linha
+            "fim_coluna": col + (fim - ini),  # coluna logo após o último caractere (Etapa 4)
             "inicio": self._off(ini),
             "fim": self._off(fim),
             "caminho": caminho,

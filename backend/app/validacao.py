@@ -11,6 +11,7 @@ MSG_ESPACOS = (
     "Digite um programa para analisar."
 )
 MSG_GRANDE = f"O código excede o limite de {TAMANHO_MAXIMO} caracteres."
+MSG_UNICODE = "O código contém caracteres Unicode inválidos (incompletos). Remova-os e tente novamente."
 
 
 @dataclass(frozen=True)
@@ -28,4 +29,8 @@ def validar_codigo(codigo: str) -> Optional[ErroEntrada]:
         return ErroEntrada("codigo_somente_espacos", MSG_ESPACOS, 400)
     if len(codigo) > TAMANHO_MAXIMO:
         return ErroEntrada("codigo_muito_grande", MSG_GRANDE, 413)
+    try:
+        codigo.encode("utf-8")
+    except UnicodeEncodeError:  # surrogate isolado: não dá para serializar a resposta
+        return ErroEntrada("codigo_invalido", MSG_UNICODE, 400)
     return None

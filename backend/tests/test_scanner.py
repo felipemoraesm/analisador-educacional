@@ -31,7 +31,8 @@ def test_cada_palavra_reservada_e_reconhecida(palavra):
 
 
 def test_conjunto_de_palavras_reservadas_documentado():
-    assert set(PALAVRAS_RESERVADAS) == {"int", "float", "char", "if", "else", "while", "return"}
+    # Etapa 4: "void" foi acrescentada para o tipo de retorno de funções (decisão documentada em docs/gramatica.md)
+    assert set(PALAVRAS_RESERVADAS) == {"int", "float", "char", "void", "if", "else", "while", "return"}
 
 
 @pytest.mark.parametrize("texto", ["integer", "Int", "IF", "iff", "returns", "int1", "_int", "whiles"])
@@ -416,3 +417,26 @@ def test_todo_caractere_nao_branco_pertence_a_um_token_erro_ou_comentario():
     for pos, ch in enumerate(codigo):
         if not ch.isspace():
             assert pos in cobertos, (pos, ch)
+
+
+# ---------------- Etapa 4: posição final dos tokens ----------------
+def test_tokens_trazem_posicao_final_na_mesma_linha():
+    r = tokenizar("int numero = 10;\n  x<=5")
+    por_lexema = {t["lexema"]: t for t in r["tokens"]}
+    assert (por_lexema["int"]["fim_linha"], por_lexema["int"]["fim_coluna"]) == (1, 4)
+    assert (por_lexema["numero"]["fim_linha"], por_lexema["numero"]["fim_coluna"]) == (1, 11)
+    assert (por_lexema["<="]["fim_linha"], por_lexema["<="]["fim_coluna"]) == (2, 6)
+
+
+def test_posicao_final_com_emoji_conta_caracteres():
+    tk = tokenizar('"😀😀"')["tokens"][0]
+    assert tk["coluna"] == 1 and tk["fim_coluna"] == 5  # 4 caracteres: aspas, 2 emojis, aspas
+
+
+def test_posicao_final_de_lexema_longo_usa_o_tamanho_real():
+    tk = tokenizar("a" * 100)["tokens"][0]
+    assert tk["fim_coluna"] == 101
+
+
+def test_void_e_palavra_reservada():
+    assert par("void f") == [("PALAVRA_RESERVADA", "void"), ("IDENTIFICADOR", "f")]

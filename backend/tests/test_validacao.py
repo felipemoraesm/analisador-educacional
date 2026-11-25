@@ -27,3 +27,13 @@ def test_limite_de_tamanho():
 def test_entrada_com_erros_de_programacao_e_aceita():
     # O sistema não presume que o código é válido (erros são tema das etapas futuras)
     assert validar_codigo("int x = 10\nint y = x + ;") is None
+
+
+def test_surrogate_isolado_e_rejeitado_com_mensagem_clara():
+    erro = validar_codigo("int a; \ud800")
+    assert erro.codigo == "codigo_invalido" and erro.status == 400
+    assert "Unicode" in erro.mensagem
+
+
+def test_emoji_valido_nao_e_confundido_com_surrogate_isolado():
+    assert validar_codigo('char s = "😀";') is None
