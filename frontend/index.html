@@ -14,7 +14,7 @@
         Linguagem analisada:
         <strong id="linguagem-analisada">C</strong>
         <span class="selo">subconjunto de C</span>
-        <span class="selo">Etapa 3: análise léxica (scanner)</span>
+        <span class="selo">Etapa 4: análise sintática (parser e AST)</span>
       </p>
     </div>
   </header>
@@ -122,7 +122,8 @@
             <li>Escolha um exemplo (o 8 tem erros léxicos de propósito) ou escreva seu código.</li>
             <li>Clique em <strong>Analisar código</strong>.</li>
             <li>Veja o <strong>resumo</strong>, o <strong>passo a passo</strong> do scanner (com os estados do autômato), o <strong>código colorido</strong> e a <strong>tabela de tokens</strong>.</li>
-            <li>No passo a passo, use <kbd>Próximo</kbd>, <kbd>Anterior</kbd> ou <kbd>Reproduzir</kbd> para acompanhar a leitura.</li>
+            <li>Se não houver erros, veja também a <strong>árvore sintática (AST)</strong>: clique em um nó para destacar o trecho do código e ver a regra da gramática, e use <kbd>Próximo</kbd> na construção para ver a ordem em que o parser monta a árvore.</li>
+            <li>Se houver erros, leia as mensagens (léxicas ou sintáticas): elas dizem a linha, a coluna, o que era esperado e como corrigir.</li>
           </ol>
         </section>
 
@@ -130,6 +131,49 @@
           <h3>5. Categorias de token desta ferramenta</h3>
           <div id="legenda-categorias" class="rolavel"></div>
           <p class="ajuda">Comentários (<code>// linha</code> e <code>/* bloco */</code>) e espaços são ignorados, e não geram tokens.</p>
+        </section>
+
+        <section>
+          <h3>6. Análise sintática e a árvore (AST)</h3>
+          <p>
+            Depois do scanner, o <strong>parser</strong> recebe os tokens e confere se eles formam
+            “frases” válidas segundo uma <strong>gramática</strong>. Se formarem, ele monta uma
+            <strong>árvore sintática abstrata (AST)</strong>, que mostra a estrutura do programa.
+          </p>
+          <p>
+            Em <code>int resultado = 10 + 5 * 2;</code> a multiplicação aparece <em>abaixo</em> da
+            adição na árvore: é a <strong>precedência</strong> dos operadores. Em <code>20 - 5 - 3</code>,
+            a subtração é feita da esquerda para a direita (<strong>associatividade</strong>).
+          </p>
+          <ul>
+            <li><strong>Árvore de derivação</strong>: mostra todas as regras aplicadas. <strong>AST</strong>: guarda só o que importa (sem <code>;</code>, parênteses ou regras intermediárias). Esta ferramenta exibe a <strong>AST</strong>.</li>
+            <li>Se o scanner achar erro léxico, o parser <strong>não roda</strong>: com tokens inválidos, os erros sintáticos seriam enganosos.</li>
+            <li>Os erros sintáticos dizem o que era esperado e citam a <strong>regra da gramática</strong> violada.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>7. A gramática (EBNF)</h3>
+          <p>Estas são as regras que o parser conhece. <code>{ x }</code> repete, <code>[ x ]</code> é opcional, <code>|</code> é alternativa.</p>
+          <details>
+            <summary>Ver a gramática completa</summary>
+            <pre id="gramatica-ebnf" class="codigo-bloco">Carregando a gramática…</pre>
+          </details>
+          <div class="rolavel">
+            <table class="tabela tabela--exemplo">
+              <caption>Precedência (da menor para a maior)</caption>
+              <thead><tr><th>Nível</th><th>Operadores</th><th>Associa à</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td><code>||</code></td><td>esquerda</td></tr>
+                <tr><td>2</td><td><code>&amp;&amp;</code></td><td>esquerda</td></tr>
+                <tr><td>3</td><td><code>==  !=</code></td><td>esquerda</td></tr>
+                <tr><td>4</td><td><code>&lt;  &gt;  &lt;=  &gt;=</code></td><td>esquerda</td></tr>
+                <tr><td>5</td><td><code>+  -</code></td><td>esquerda</td></tr>
+                <tr><td>6</td><td><code>*  /  %</code></td><td>esquerda</td></tr>
+                <tr><td>7</td><td><code>!  -</code> (unários)</td><td>direita</td></tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       </div>
     </details>
@@ -173,9 +217,12 @@
           <div id="resumo-lexico" class="resumo"></div>
           <h3 class="subtitulo">Erros léxicos</h3>
           <div id="erros-lexicos" class="erros"></div>
+          <h3 class="subtitulo">Análise sintática</h3>
+          <div id="sintatico-status" role="status" class="resultado resultado--vazio"></div>
+          <div id="erros-sintaticos" class="erros"></div>
         </div>
         <p class="ajuda">
-          Nesta etapa o sistema faz a análise léxica. As análises sintática e semântica ainda não foram implementadas.
+          Nesta etapa o sistema faz a análise léxica e a sintática. A análise semântica ainda não foi implementada.
         </p>
       </section>
     </div>
@@ -217,6 +264,56 @@
         <div id="sequencia-tokens" class="chips"></div>
       </section>
 
+      <section id="secao-ast" class="cartao" aria-labelledby="titulo-ast" hidden>
+        <h2 id="titulo-ast">Árvore sintática abstrata (AST)</h2>
+        <p class="ajuda" id="ast-explicacao">
+          A AST resume a estrutura do programa que o parser reconheceu. Clique em um nó para destacar o trecho
+          correspondente no código e ver a regra da gramática. Esta é a <strong>AST</strong> (versão simplificada), e não a árvore de derivação completa.
+        </p>
+        <div class="ast-barra">
+          <button id="ast-expandir" type="button" class="botao">Expandir tudo</button>
+          <button id="ast-recolher" type="button" class="botao">Recolher tudo</button>
+          <label class="velocidade">Filtrar por tipo
+            <select id="ast-filtro"><option value="">Todos os tipos</option></select>
+          </label>
+          <button id="ast-exportar" type="button" class="botao">Exportar JSON</button>
+          <span id="ast-resumo" class="ajuda"></span>
+        </div>
+        <div class="ast-layout">
+          <div class="ast-coluna">
+            <h3 class="subtitulo">Árvore</h3>
+            <ul id="ast-arvore" role="tree" class="ast-arvore" aria-label="Árvore sintática abstrata"></ul>
+          </div>
+          <div class="ast-coluna">
+            <h3 class="subtitulo">Código com o trecho do nó</h3>
+            <pre id="ast-codigo" class="codigo-bloco" aria-label="Código-fonte com o trecho do nó selecionado"></pre>
+            <h3 class="subtitulo">Detalhes do nó selecionado</h3>
+            <div id="ast-detalhes" class="ast-detalhes" aria-live="polite"></div>
+          </div>
+        </div>
+        <h3 class="subtitulo">Construção passo a passo (do mais interno para a raiz)</h3>
+        <p id="ast-narracao" class="narracao" aria-live="polite"></p>
+        <div class="controles" role="group" aria-label="Controles da construção da árvore">
+          <button id="ast-passo-inicio" type="button" class="botao">⏮ Início</button>
+          <button id="ast-passo-anterior" type="button" class="botao">◀ Anterior</button>
+          <button id="ast-passo-proximo" type="button" class="botao botao--primario">Próximo ▶</button>
+          <button id="ast-passo-fim" type="button" class="botao">Fim ⏭</button>
+          <button id="ast-passo-reproduzir" type="button" class="botao" aria-pressed="false">▶ Reproduzir</button>
+          <label class="velocidade">Velocidade
+            <select id="ast-passo-velocidade">
+              <option value="lenta">Lenta</option>
+              <option value="normal" selected>Normal</option>
+              <option value="rapida">Rápida</option>
+            </select>
+          </label>
+          <span id="ast-passo-info" class="passos-info"></span>
+        </div>
+        <details class="ast-texto-det">
+          <summary>Versão em texto da árvore (acessível a leitores de tela)</summary>
+          <pre id="ast-texto" class="codigo-bloco"></pre>
+        </details>
+      </section>
+
       <section class="cartao" aria-labelledby="titulo-tabela">
         <h2 id="titulo-tabela">Tabela de tokens</h2>
         <div class="rolavel">
@@ -233,6 +330,7 @@
   </main>
 
   <script src="visual.js"></script>
+  <script src="arvore.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

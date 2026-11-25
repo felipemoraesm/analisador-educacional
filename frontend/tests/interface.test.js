@@ -198,7 +198,8 @@ test('sucesso: mostra mensagem do servidor, contagem e aviso de etapas futuras',
   // Etapa 3: a mensagem do servidor passou a descrever a análise léxica (antes: "Código recebido com sucesso.")
   assert.match(t.resultado.textContent, /Análise léxica concluída/);
   assert.match(t.resultado.textContent, /2 linhas · 13 caracteres/);
-  assert.match(t.resultado.textContent, /sintática e semântica serão adicionadas nas próximas etapas/);
+  // Etapa 4: a análise sintática passou a existir; o aviso agora fala só da semântica
+  assert.match(t.resultado.textContent, /A análise semântica será adicionada na próxima etapa/);
 });
 
 test('erro de validação devolvido pelo backend (400) é exibido como entrada inválida', async () => {

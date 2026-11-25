@@ -1,0 +1,618 @@
+{
+ "codigo": "int resultado = 10 + 5 * 2;",
+ "resposta": {
+  "recebido": true,
+  "sucesso": true,
+  "mensagem": "Análise léxica concluída: 9 tokens, nenhum erro léxico.",
+  "linhas": 1,
+  "caracteres": 27,
+  "tokens": [
+   {
+    "tipo": "PALAVRA_RESERVADA",
+    "lexema": "int",
+    "linha": 1,
+    "coluna": 1,
+    "fim_linha": 1,
+    "fim_coluna": 4,
+    "inicio": 0,
+    "fim": 3,
+    "caminho": [
+     {
+      "c": "i",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "n",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "IDENTIFICADOR",
+    "lexema": "resultado",
+    "linha": 1,
+    "coluna": 5,
+    "fim_linha": 1,
+    "fim_coluna": 14,
+    "inicio": 4,
+    "fim": 13,
+    "caminho": [
+     {
+      "c": "r",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "e",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "s",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "u",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "l",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "t",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "a",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "d",
+      "classe": "letra",
+      "estado": "IDENT"
+     },
+     {
+      "c": "o",
+      "classe": "letra",
+      "estado": "IDENT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ATRIBUICAO",
+    "lexema": "=",
+    "linha": 1,
+    "coluna": 15,
+    "fim_linha": 1,
+    "fim_coluna": 16,
+    "inicio": 14,
+    "fim": 15,
+    "caminho": [
+     {
+      "c": "=",
+      "classe": "simbolo",
+      "estado": "IGUAL"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "10",
+    "linha": 1,
+    "coluna": 17,
+    "fim_linha": 1,
+    "fim_coluna": 19,
+    "inicio": 16,
+    "fim": 18,
+    "caminho": [
+     {
+      "c": "1",
+      "classe": "digito",
+      "estado": "INT"
+     },
+     {
+      "c": "0",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "+",
+    "linha": 1,
+    "coluna": 20,
+    "fim_linha": 1,
+    "fim_coluna": 21,
+    "inicio": 19,
+    "fim": 20,
+    "caminho": [
+     {
+      "c": "+",
+      "classe": "simbolo",
+      "estado": "OP_ARITMETICO"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "5",
+    "linha": 1,
+    "coluna": 22,
+    "fim_linha": 1,
+    "fim_coluna": 23,
+    "inicio": 21,
+    "fim": 22,
+    "caminho": [
+     {
+      "c": "5",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "OPERADOR_ARITMETICO",
+    "lexema": "*",
+    "linha": 1,
+    "coluna": 24,
+    "fim_linha": 1,
+    "fim_coluna": 25,
+    "inicio": 23,
+    "fim": 24,
+    "caminho": [
+     {
+      "c": "*",
+      "classe": "simbolo",
+      "estado": "OP_ARITMETICO"
+     }
+    ]
+   },
+   {
+    "tipo": "LITERAL_INTEIRO",
+    "lexema": "2",
+    "linha": 1,
+    "coluna": 26,
+    "fim_linha": 1,
+    "fim_coluna": 27,
+    "inicio": 25,
+    "fim": 26,
+    "caminho": [
+     {
+      "c": "2",
+      "classe": "digito",
+      "estado": "INT"
+     }
+    ]
+   },
+   {
+    "tipo": "DELIMITADOR",
+    "lexema": ";",
+    "linha": 1,
+    "coluna": 27,
+    "fim_linha": 1,
+    "fim_coluna": 28,
+    "inicio": 26,
+    "fim": 27,
+    "caminho": [
+     {
+      "c": ";",
+      "classe": "simbolo",
+      "estado": "DELIMITADOR"
+     }
+    ]
+   }
+  ],
+  "erros": [],
+  "comentarios": [],
+  "resumo": {
+   "total_tokens": 9,
+   "total_erros": 0,
+   "total_comentarios": 0,
+   "por_categoria": {
+    "PALAVRA_RESERVADA": 1,
+    "IDENTIFICADOR": 1,
+    "LITERAL_INTEIRO": 3,
+    "OPERADOR_ARITMETICO": 2,
+    "OPERADOR_ATRIBUICAO": 1,
+    "DELIMITADOR": 1
+   }
+  },
+  "lexico": {
+   "sucesso": true,
+   "tokens": [
+    {
+     "tipo": "PALAVRA_RESERVADA",
+     "lexema": "int",
+     "linha": 1,
+     "coluna": 1,
+     "fim_linha": 1,
+     "fim_coluna": 4,
+     "inicio": 0,
+     "fim": 3,
+     "caminho": [
+      {
+       "c": "i",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "n",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "t",
+       "classe": "letra",
+       "estado": "IDENT"
+      }
+     ]
+    },
+    {
+     "tipo": "IDENTIFICADOR",
+     "lexema": "resultado",
+     "linha": 1,
+     "coluna": 5,
+     "fim_linha": 1,
+     "fim_coluna": 14,
+     "inicio": 4,
+     "fim": 13,
+     "caminho": [
+      {
+       "c": "r",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "e",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "s",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "u",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "l",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "t",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "a",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "d",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "o",
+       "classe": "letra",
+       "estado": "IDENT"
+      }
+     ]
+    },
+    {
+     "tipo": "OPERADOR_ATRIBUICAO",
+     "lexema": "=",
+     "linha": 1,
+     "coluna": 15,
+     "fim_linha": 1,
+     "fim_coluna": 16,
+     "inicio": 14,
+     "fim": 15,
+     "caminho": [
+      {
+       "c": "=",
+       "classe": "simbolo",
+       "estado": "IGUAL"
+      }
+     ]
+    },
+    {
+     "tipo": "LITERAL_INTEIRO",
+     "lexema": "10",
+     "linha": 1,
+     "coluna": 17,
+     "fim_linha": 1,
+     "fim_coluna": 19,
+     "inicio": 16,
+     "fim": 18,
+     "caminho": [
+      {
+       "c": "1",
+       "classe": "digito",
+       "estado": "INT"
+      },
+      {
+       "c": "0",
+       "classe": "digito",
+       "estado": "INT"
+      }
+     ]
+    },
+    {
+     "tipo": "OPERADOR_ARITMETICO",
+     "lexema": "+",
+     "linha": 1,
+     "coluna": 20,
+     "fim_linha": 1,
+     "fim_coluna": 21,
+     "inicio": 19,
+     "fim": 20,
+     "caminho": [
+      {
+       "c": "+",
+       "classe": "simbolo",
+       "estado": "OP_ARITMETICO"
+      }
+     ]
+    },
+    {
+     "tipo": "LITERAL_INTEIRO",
+     "lexema": "5",
+     "linha": 1,
+     "coluna": 22,
+     "fim_linha": 1,
+     "fim_coluna": 23,
+     "inicio": 21,
+     "fim": 22,
+     "caminho": [
+      {
+       "c": "5",
+       "classe": "digito",
+       "estado": "INT"
+      }
+     ]
+    },
+    {
+     "tipo": "OPERADOR_ARITMETICO",
+     "lexema": "*",
+     "linha": 1,
+     "coluna": 24,
+     "fim_linha": 1,
+     "fim_coluna": 25,
+     "inicio": 23,
+     "fim": 24,
+     "caminho": [
+      {
+       "c": "*",
+       "classe": "simbolo",
+       "estado": "OP_ARITMETICO"
+      }
+     ]
+    },
+    {
+     "tipo": "LITERAL_INTEIRO",
+     "lexema": "2",
+     "linha": 1,
+     "coluna": 26,
+     "fim_linha": 1,
+     "fim_coluna": 27,
+     "inicio": 25,
+     "fim": 26,
+     "caminho": [
+      {
+       "c": "2",
+       "classe": "digito",
+       "estado": "INT"
+      }
+     ]
+    },
+    {
+     "tipo": "DELIMITADOR",
+     "lexema": ";",
+     "linha": 1,
+     "coluna": 27,
+     "fim_linha": 1,
+     "fim_coluna": 28,
+     "inicio": 26,
+     "fim": 27,
+     "caminho": [
+      {
+       "c": ";",
+       "classe": "simbolo",
+       "estado": "DELIMITADOR"
+      }
+     ]
+    }
+   ],
+   "erros": [],
+   "comentarios": [],
+   "resumo": {
+    "total_tokens": 9,
+    "total_erros": 0,
+    "total_comentarios": 0,
+    "por_categoria": {
+     "PALAVRA_RESERVADA": 1,
+     "IDENTIFICADOR": 1,
+     "LITERAL_INTEIRO": 3,
+     "OPERADOR_ARITMETICO": 2,
+     "OPERADOR_ATRIBUICAO": 1,
+     "DELIMITADOR": 1
+    }
+   }
+  },
+  "sintatico": {
+   "executado": true,
+   "sucesso": true,
+   "mensagem": "Análise sintática concluída: programa válido (AST com 7 nós).",
+   "motivo": null,
+   "ast": {
+    "tipo": "PROGRAMA",
+    "id": 1,
+    "papel": null,
+    "linha": 1,
+    "coluna": 1,
+    "fim_linha": 1,
+    "fim_coluna": 28,
+    "inicio": 0,
+    "fim": 27,
+    "atributos": {},
+    "filhos": [
+     {
+      "tipo": "DECLARACAO_VARIAVEL",
+      "id": 2,
+      "papel": "item",
+      "linha": 1,
+      "coluna": 1,
+      "fim_linha": 1,
+      "fim_coluna": 28,
+      "inicio": 0,
+      "fim": 27,
+      "atributos": {
+       "tipo_dado": "int",
+       "nome": "resultado"
+      },
+      "filhos": [
+       {
+        "tipo": "ADICAO",
+        "id": 3,
+        "papel": "valor",
+        "linha": 1,
+        "coluna": 17,
+        "fim_linha": 1,
+        "fim_coluna": 27,
+        "inicio": 16,
+        "fim": 26,
+        "atributos": {
+         "operador": "+"
+        },
+        "filhos": [
+         {
+          "tipo": "LITERAL_INTEIRO",
+          "id": 4,
+          "papel": "esquerda",
+          "linha": 1,
+          "coluna": 17,
+          "fim_linha": 1,
+          "fim_coluna": 19,
+          "inicio": 16,
+          "fim": 18,
+          "atributos": {
+           "valor": "10"
+          },
+          "filhos": []
+         },
+         {
+          "tipo": "MULTIPLICACAO",
+          "id": 5,
+          "papel": "direita",
+          "linha": 1,
+          "coluna": 22,
+          "fim_linha": 1,
+          "fim_coluna": 27,
+          "inicio": 21,
+          "fim": 26,
+          "atributos": {
+           "operador": "*"
+          },
+          "filhos": [
+           {
+            "tipo": "LITERAL_INTEIRO",
+            "id": 6,
+            "papel": "esquerda",
+            "linha": 1,
+            "coluna": 22,
+            "fim_linha": 1,
+            "fim_coluna": 23,
+            "inicio": 21,
+            "fim": 22,
+            "atributos": {
+             "valor": "5"
+            },
+            "filhos": []
+           },
+           {
+            "tipo": "LITERAL_INTEIRO",
+            "id": 7,
+            "papel": "direita",
+            "linha": 1,
+            "coluna": 26,
+            "fim_linha": 1,
+            "fim_coluna": 27,
+            "inicio": 25,
+            "fim": 26,
+            "atributos": {
+             "valor": "2"
+            },
+            "filhos": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "erros": [],
+   "erros_truncados": false,
+   "resumo": {
+    "total_nos": 7,
+    "altura": 5,
+    "por_tipo": {
+     "PROGRAMA": 1,
+     "DECLARACAO_VARIAVEL": 1,
+     "ADICAO": 1,
+     "LITERAL_INTEIRO": 3,
+     "MULTIPLICACAO": 1
+    }
+   },
+   "regras": {
+    "ADICAO": {
+     "regra": "soma = termo { ( \"+\" | \"-\" ) termo } ;",
+     "descricao": "Soma de dois operandos.",
+     "categoria": "expressao"
+    },
+    "DECLARACAO_VARIAVEL": {
+     "regra": "declaracao = tipo IDENTIFICADOR [ \"=\" expressao ] \";\" ;",
+     "descricao": "Declaração de variável, com valor inicial opcional.",
+     "categoria": "declaracao"
+    },
+    "LITERAL_INTEIRO": {
+     "regra": "primario = IDENTIFICADOR | chamada | LITERAL_INTEIRO | LITERAL_REAL | LITERAL_STRING | LITERAL_CHAR | \"(\" expressao \")\" ;",
+     "descricao": "Número inteiro.",
+     "categoria": "folha"
+    },
+    "MULTIPLICACAO": {
+     "regra": "termo = unario { ( \"*\" | \"/\" | \"%\" ) unario } ;",
+     "descricao": "Multiplicação (precedência maior que soma e subtração).",
+     "categoria": "expressao"
+    },
+    "PROGRAMA": {
+     "regra": "programa = { definicao_funcao | declaracao | comando } ;",
+     "descricao": "Raiz da árvore: a sequência de itens do programa.",
+     "categoria": "estrutura"
+    }
+   },
+   "texto": "PROGRAMA  [1:1]\n└── item: DECLARACAO_VARIAVEL (tipo_dado=int nome=resultado)  [1:1]\n    └── valor: ADICAO (operador=+)  [1:17]\n        ├── esquerda: LITERAL_INTEIRO (valor=10)  [1:17]\n        └── direita: MULTIPLICACAO (operador=*)  [1:22]\n            ├── esquerda: LITERAL_INTEIRO (valor=5)  [1:22]\n            └── direita: LITERAL_INTEIRO (valor=2)  [1:26]"
+  }
+ }
+}

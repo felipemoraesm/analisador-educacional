@@ -104,3 +104,69 @@ test('scanner real: posições em UTF-16 recortam o código igual ao JavaScript'
     assert.equal(codigo.slice(item.inicio, item.fim), item.lexema);
   }
 });
+
+// ---------- Etapa 4: análise sintática via HTTP real ----------
+const achar = (no, tipo) => (no.tipo === tipo ? no : no.filhos.map((f) => achar(f, tipo)).find(Boolean));
+
+test('parser real: precedência na AST do exemplo do enunciado', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const r = await c.analisar('int resultado = 10 + 5 * 2;');
+  const sint = r.dados.sintatico;
+  assert.equal(sint.sucesso, true);
+  const soma = achar(sint.ast, 'ADICAO');
+  assert.deepEqual(soma.filhos.map((f) => f.tipo), ['LITERAL_INTEIRO', 'MULTIPLICACAO']); // * abaixo de +
+  assert.equal(sint.erros.length, 0);
+});
+
+test('parser real: erro sintático com localização, esperado e regra', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const r = await c.analisar('if (x > 0 {\n  y = 1;\n}');
+  const sint = r.dados.sintatico;
+  assert.equal(sint.sucesso, false);
+  assert.equal(sint.ast, null);
+  const e = sint.erros[0];
+  assert.deepEqual([e.linha, e.coluna, e.encontrado, e.esperado], [1, 11, '{', [')']]);
+  assert.match(e.mensagem, /para fechar a condição do if/);
+  assert.match(e.regra, /^condicional =/);
+  assert.equal(r.dados.sucesso, true); // o scanner não teve problema algum
+});
+
+test('parser real: erro léxico impede a análise sintática (decisão de projeto)', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const r = await c.analisar('int a = @;');
+  assert.equal(r.dados.sintatico.executado, false);
+  assert.equal(r.dados.sintatico.sucesso, null);
+  assert.match(r.dados.sintatico.motivo, /erros léxicos/);
+  assert.equal(r.dados.erros[0].lexema, '@');
+});
+
+test('parser real: trechos dos nós recortam o código igual ao JavaScript (inclusive com emoji)', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const codigo = 'char s = "😀"; int f(int a) { return a * 2 + 1; }';
+  const r = await c.analisar(codigo);
+  assert.equal(r.dados.sintatico.sucesso, true);
+  (function conferir(no) {
+    assert.ok(no.fim >= no.inicio);
+    no.filhos.forEach(conferir);
+  }(r.dados.sintatico.ast));
+  const mult = achar(r.dados.sintatico.ast, 'MULTIPLICACAO');
+  assert.equal(codigo.slice(mult.inicio, mult.fim), 'a * 2');
+});
+
+test('parser real: gramática servida pela API', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const g = await c.obterGramatica();
+  assert.match(g.ebnf, /^programa\s+=/m);
+  assert.equal(g.simbolo_inicial, 'programa');
+});
+
+test('parser real: todos os exemplos da interface têm o resultado esperado', opcoes, async () => {
+  const c = app.criarCliente(fetch, API_URL);
+  const { exemplos } = await c.listarExemplos();
+  const porId = Object.fromEntries(exemplos.map((e) => [e.id, e.codigo]));
+  for (const id of ['declaracao', 'aritmetica', 'condicional', 'if_else', 'literais', 'operadores', 'precedencia', 'funcoes', 'aninhamento']) {
+    assert.equal((await c.analisar(porId[id])).dados.sintatico.sucesso, true, id);
+  }
+  assert.equal((await c.analisar(porId.erros_sintaticos)).dados.sintatico.erros.length, 6);
+  assert.equal((await c.analisar(porId.erros_lexicos)).dados.sintatico.executado, false);
+});

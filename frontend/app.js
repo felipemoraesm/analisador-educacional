@@ -5,6 +5,7 @@
  *  - criarCliente: comunicação HTTP com o backend, com classificação de falhas
  *  - iniciar: liga a lógica aos elementos da página
  *  - visual.js: exibição didática dos tokens, erros e passo a passo (Etapa 3)
+ *  - arvore.js: análise sintática, AST navegável e construção passo a passo (Etapa 4)
  * O arquivo funciona no navegador e também em Node (testes com jsdom).
  */
 (function (raiz, fabrica) {
@@ -21,13 +22,17 @@
     ? require('./visual.js')
     : (typeof AnalisadorVisual !== 'undefined' ? AnalisadorVisual : null);
 
+  var Arvore = (typeof module === 'object' && typeof require === 'function')
+    ? require('./arvore.js')
+    : (typeof AnalisadorArvore !== 'undefined' ? AnalisadorArvore : null);
+
   var MENSAGENS = {
     vazio: 'Informe um código-fonte antes de solicitar a análise.',
     espacos: 'O código informado contém apenas espaços em branco. Digite um programa para analisar.',
     comunicacao: 'Não foi possível comunicar com o servidor. Verifique a conexão e tente novamente.',
     inesperado: 'Ocorreu um erro inesperado. Tente novamente em instantes.',
     exemplos: 'Não foi possível carregar os exemplos. Você ainda pode digitar seu próprio código.',
-    proximasEtapas: 'As análises sintática e semântica serão adicionadas nas próximas etapas.'
+    proximasEtapas: 'A análise semântica será adicionada na próxima etapa.'
   };
 
   var TEMPO_LIMITE_MS = 10000;
@@ -109,7 +114,18 @@
       }
     }
 
-    return { analisar: analisar, listarExemplos: listarExemplos };
+    async function obterGramatica() {
+      try {
+        var resposta = await requisitar('/api/gramatica', { method: 'GET' });
+        if (!resposta.ok) return null;
+        var dados = await lerJson(resposta);
+        return dados && typeof dados.ebnf === 'string' ? dados : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    return { analisar: analisar, listarExemplos: listarExemplos, obterGramatica: obterGramatica };
   }
 
   /* ---------- Interface ---------- */
@@ -125,6 +141,7 @@
     var exemplos = [];
     var ocupado = false;
     var passoAPasso = null;
+    var arvore = null;
 
     function el(tag, classe, texto) {
       var e = doc.createElement(tag);
@@ -144,6 +161,8 @@
     function esconderAnalise() {
       if (Visual) Visual.esconderAnalise(doc, passoAPasso);
       passoAPasso = null;
+      if (Arvore) Arvore.esconder(doc, arvore);
+      arvore = null;
     }
 
     function atualizarContador() {
@@ -185,6 +204,7 @@
           esconderAnalise();
           if (Visual && Array.isArray(d.tokens)) {
             passoAPasso = Visual.mostrarAnalise(doc, codigo, d);
+            if (Arvore) arvore = Arvore.mostrarSintatico(doc, codigo, d);
           }
         } else if (r.tipo === 'entrada') {
           esconderAnalise();
@@ -246,11 +266,24 @@
       if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') { ev.preventDefault(); analisar(); }
     });
 
+    async function carregarGramatica() {
+      var alvo = doc.getElementById('gramatica-ebnf');
+      if (!alvo || !Arvore) return;
+      var g = await cliente.obterGramatica();
+      if (g) Arvore.renderGramatica(doc, alvo, g);
+      else alvo.textContent = 'A gramática não pôde ser carregada agora (veja docs/gramatica.md).';
+    }
+
     var legenda = doc.getElementById('legenda-categorias');
     if (Visual && legenda) Visual.renderLegenda(doc, legenda);
 
     atualizarContador();
-    return { pronto: carregarExemplos(), analisar: analisar, passoAPasso: function () { return passoAPasso; } };
+    return {
+      pronto: Promise.all([carregarExemplos(), carregarGramatica()]),
+      analisar: analisar,
+      passoAPasso: function () { return passoAPasso; },
+      arvore: function () { return arvore; }
+    };
   }
 
   var api = { validarEntrada: validarEntrada, contar: contar, criarCliente: criarCliente, iniciar: iniciar, MENSAGENS: MENSAGENS };

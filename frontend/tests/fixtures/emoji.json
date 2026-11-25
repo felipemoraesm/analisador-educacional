@@ -12,6 +12,8 @@
     "lexema": "char",
     "linha": 1,
     "coluna": 1,
+    "fim_linha": 1,
+    "fim_coluna": 5,
     "inicio": 0,
     "fim": 4,
     "caminho": [
@@ -42,6 +44,8 @@
     "lexema": "s",
     "linha": 1,
     "coluna": 6,
+    "fim_linha": 1,
+    "fim_coluna": 7,
     "inicio": 5,
     "fim": 6,
     "caminho": [
@@ -57,6 +61,8 @@
     "lexema": "=",
     "linha": 1,
     "coluna": 8,
+    "fim_linha": 1,
+    "fim_coluna": 9,
     "inicio": 7,
     "fim": 8,
     "caminho": [
@@ -72,6 +78,8 @@
     "lexema": "\"😀\"",
     "linha": 1,
     "coluna": 10,
+    "fim_linha": 1,
+    "fim_coluna": 13,
     "inicio": 9,
     "fim": 13,
     "caminho": [
@@ -97,6 +105,8 @@
     "lexema": ";",
     "linha": 1,
     "coluna": 13,
+    "fim_linha": 1,
+    "fim_coluna": 14,
     "inicio": 13,
     "fim": 14,
     "caminho": [
@@ -112,6 +122,8 @@
     "lexema": "int",
     "linha": 1,
     "coluna": 15,
+    "fim_linha": 1,
+    "fim_coluna": 18,
     "inicio": 15,
     "fim": 18,
     "caminho": [
@@ -137,6 +149,8 @@
     "lexema": "x",
     "linha": 1,
     "coluna": 19,
+    "fim_linha": 1,
+    "fim_coluna": 20,
     "inicio": 19,
     "fim": 20,
     "caminho": [
@@ -152,6 +166,8 @@
     "lexema": ";",
     "linha": 1,
     "coluna": 20,
+    "fim_linha": 1,
+    "fim_coluna": 21,
     "inicio": 20,
     "fim": 21,
     "caminho": [
@@ -176,6 +192,293 @@
     "OPERADOR_ATRIBUICAO": 1,
     "DELIMITADOR": 2
    }
+  },
+  "lexico": {
+   "sucesso": true,
+   "tokens": [
+    {
+     "tipo": "PALAVRA_RESERVADA",
+     "lexema": "char",
+     "linha": 1,
+     "coluna": 1,
+     "fim_linha": 1,
+     "fim_coluna": 5,
+     "inicio": 0,
+     "fim": 4,
+     "caminho": [
+      {
+       "c": "c",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "h",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "a",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "r",
+       "classe": "letra",
+       "estado": "IDENT"
+      }
+     ]
+    },
+    {
+     "tipo": "IDENTIFICADOR",
+     "lexema": "s",
+     "linha": 1,
+     "coluna": 6,
+     "fim_linha": 1,
+     "fim_coluna": 7,
+     "inicio": 5,
+     "fim": 6,
+     "caminho": [
+      {
+       "c": "s",
+       "classe": "letra",
+       "estado": "IDENT"
+      }
+     ]
+    },
+    {
+     "tipo": "OPERADOR_ATRIBUICAO",
+     "lexema": "=",
+     "linha": 1,
+     "coluna": 8,
+     "fim_linha": 1,
+     "fim_coluna": 9,
+     "inicio": 7,
+     "fim": 8,
+     "caminho": [
+      {
+       "c": "=",
+       "classe": "simbolo",
+       "estado": "IGUAL"
+      }
+     ]
+    },
+    {
+     "tipo": "LITERAL_STRING",
+     "lexema": "\"😀\"",
+     "linha": 1,
+     "coluna": 10,
+     "fim_linha": 1,
+     "fim_coluna": 13,
+     "inicio": 9,
+     "fim": 13,
+     "caminho": [
+      {
+       "c": "\"",
+       "classe": "aspas",
+       "estado": "STRING"
+      },
+      {
+       "c": "😀",
+       "classe": "simbolo",
+       "estado": "STRING"
+      },
+      {
+       "c": "\"",
+       "classe": "aspas",
+       "estado": "STRING_FIM"
+      }
+     ]
+    },
+    {
+     "tipo": "DELIMITADOR",
+     "lexema": ";",
+     "linha": 1,
+     "coluna": 13,
+     "fim_linha": 1,
+     "fim_coluna": 14,
+     "inicio": 13,
+     "fim": 14,
+     "caminho": [
+      {
+       "c": ";",
+       "classe": "simbolo",
+       "estado": "DELIMITADOR"
+      }
+     ]
+    },
+    {
+     "tipo": "PALAVRA_RESERVADA",
+     "lexema": "int",
+     "linha": 1,
+     "coluna": 15,
+     "fim_linha": 1,
+     "fim_coluna": 18,
+     "inicio": 15,
+     "fim": 18,
+     "caminho": [
+      {
+       "c": "i",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "n",
+       "classe": "letra",
+       "estado": "IDENT"
+      },
+      {
+       "c": "t",
+       "classe": "letra",
+       "estado": "IDENT"
+      }
+     ]
+    },
+    {
+     "tipo": "IDENTIFICADOR",
+     "lexema": "x",
+     "linha": 1,
+     "coluna": 19,
+     "fim_linha": 1,
+     "fim_coluna": 20,
+     "inicio": 19,
+     "fim": 20,
+     "caminho": [
+      {
+       "c": "x",
+       "classe": "letra",
+       "estado": "IDENT"
+      }
+     ]
+    },
+    {
+     "tipo": "DELIMITADOR",
+     "lexema": ";",
+     "linha": 1,
+     "coluna": 20,
+     "fim_linha": 1,
+     "fim_coluna": 21,
+     "inicio": 20,
+     "fim": 21,
+     "caminho": [
+      {
+       "c": ";",
+       "classe": "simbolo",
+       "estado": "DELIMITADOR"
+      }
+     ]
+    }
+   ],
+   "erros": [],
+   "comentarios": [],
+   "resumo": {
+    "total_tokens": 8,
+    "total_erros": 0,
+    "total_comentarios": 0,
+    "por_categoria": {
+     "PALAVRA_RESERVADA": 2,
+     "IDENTIFICADOR": 2,
+     "LITERAL_STRING": 1,
+     "OPERADOR_ATRIBUICAO": 1,
+     "DELIMITADOR": 2
+    }
+   }
+  },
+  "sintatico": {
+   "executado": true,
+   "sucesso": true,
+   "mensagem": "Análise sintática concluída: programa válido (AST com 4 nós).",
+   "motivo": null,
+   "ast": {
+    "tipo": "PROGRAMA",
+    "id": 1,
+    "papel": null,
+    "linha": 1,
+    "coluna": 1,
+    "fim_linha": 1,
+    "fim_coluna": 21,
+    "inicio": 0,
+    "fim": 21,
+    "atributos": {},
+    "filhos": [
+     {
+      "tipo": "DECLARACAO_VARIAVEL",
+      "id": 2,
+      "papel": "item",
+      "linha": 1,
+      "coluna": 1,
+      "fim_linha": 1,
+      "fim_coluna": 14,
+      "inicio": 0,
+      "fim": 14,
+      "atributos": {
+       "tipo_dado": "char",
+       "nome": "s"
+      },
+      "filhos": [
+       {
+        "tipo": "LITERAL_STRING",
+        "id": 3,
+        "papel": "valor",
+        "linha": 1,
+        "coluna": 10,
+        "fim_linha": 1,
+        "fim_coluna": 13,
+        "inicio": 9,
+        "fim": 13,
+        "atributos": {
+         "valor": "\"😀\""
+        },
+        "filhos": []
+       }
+      ]
+     },
+     {
+      "tipo": "DECLARACAO_VARIAVEL",
+      "id": 4,
+      "papel": "item",
+      "linha": 1,
+      "coluna": 15,
+      "fim_linha": 1,
+      "fim_coluna": 21,
+      "inicio": 15,
+      "fim": 21,
+      "atributos": {
+       "tipo_dado": "int",
+       "nome": "x"
+      },
+      "filhos": []
+     }
+    ]
+   },
+   "erros": [],
+   "erros_truncados": false,
+   "resumo": {
+    "total_nos": 4,
+    "altura": 3,
+    "por_tipo": {
+     "PROGRAMA": 1,
+     "DECLARACAO_VARIAVEL": 2,
+     "LITERAL_STRING": 1
+    }
+   },
+   "regras": {
+    "DECLARACAO_VARIAVEL": {
+     "regra": "declaracao = tipo IDENTIFICADOR [ \"=\" expressao ] \";\" ;",
+     "descricao": "Declaração de variável, com valor inicial opcional.",
+     "categoria": "declaracao"
+    },
+    "LITERAL_STRING": {
+     "regra": "primario = IDENTIFICADOR | chamada | LITERAL_INTEIRO | LITERAL_REAL | LITERAL_STRING | LITERAL_CHAR | \"(\" expressao \")\" ;",
+     "descricao": "Texto entre aspas duplas.",
+     "categoria": "folha"
+    },
+    "PROGRAMA": {
+     "regra": "programa = { definicao_funcao | declaracao | comando } ;",
+     "descricao": "Raiz da árvore: a sequência de itens do programa.",
+     "categoria": "estrutura"
+    }
+   },
+   "texto": "PROGRAMA  [1:1]\n├── item: DECLARACAO_VARIAVEL (tipo_dado=char nome=s)  [1:1]\n│   └── valor: LITERAL_STRING (valor=\"😀\")  [1:10]\n└── item: DECLARACAO_VARIAVEL (tipo_dado=int nome=x)  [1:15]"
   }
  }
 }

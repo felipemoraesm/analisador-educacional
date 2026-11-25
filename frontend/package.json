@@ -4,7 +4,7 @@
   "private": true,
   "description": "Testes do frontend do Analisador Educacional",
   "scripts": {
-    "test": "node --test tests/interface.test.js tests/lexico_interface.test.js tests/integracao.test.js",
+    "test": "node --test tests/interface.test.js tests/lexico_interface.test.js tests/sintatico_interface.test.js tests/integracao.test.js",
     "test:integracao": "node --test tests/integracao.test.js"
   },
   "devDependencies": {

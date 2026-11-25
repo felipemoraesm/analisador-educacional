@@ -177,3 +177,59 @@ kbd { border: 1px solid var(--borda); border-radius: 4px; padding: 0 .3rem; back
   .topo h1 { font-size: 1.25rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+
+/* ===================== Etapa 4: análise sintática e AST ===================== */
+.erro-item::before {
+  content: "LÉXICO"; display: inline-block; margin-right: .5rem; padding: 0 .4rem; font-size: .68rem;
+  font-weight: 700; letter-spacing: .04em; border: 1px solid currentColor; border-radius: 4px; vertical-align: middle;
+}
+.erro-item--sint { color: var(--sint-texto); background: var(--sint-fundo); border-left-color: var(--sint-borda); }
+.erro-item--sint::before { content: "SINTÁTICO"; }
+.erro-item__extra { display: block; margin-top: .25rem; font-size: .88rem; }
+.erro-item__extra code { font-family: ui-monospace, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+:root { --sint-fundo: #efe9fb; --sint-borda: #7a4fd0; --sint-texto: #3a1f7a; }
+@media (prefers-color-scheme: dark) { :root { --sint-fundo: #2a2147; --sint-borda: #a58bff; --sint-texto: #ddd2ff; } }
+
+.tk-sint { outline: 2px solid var(--sint-borda); outline-offset: 1px; }
+.tk-sint-fim::after { content: " ◂ o código terminou aqui"; font-style: italic; color: var(--sint-borda); font-size: .85em; }
+
+.ast-barra { margin-top: .7rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .9rem; }
+.ast-barra .botao { padding: .45rem .8rem; }
+.ast-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem 1.5rem; align-items: start; }
+@media (max-width: 860px) { .ast-layout { grid-template-columns: 1fr; } }
+.ast-arvore, .ast-grupo { list-style: none; margin: 0; padding: 0; }
+.ast-arvore { max-height: 32rem; overflow: auto; border: 1px solid var(--borda); border-radius: 8px; padding: .5rem; background: var(--fundo); }
+.ast-grupo { margin-left: 1.1rem; border-left: 1px dashed var(--borda); padding-left: .4rem; }
+.ast-no__linha { display: flex; align-items: center; gap: .25rem; margin: .15rem 0; }
+.ast-toggle { width: 1.6rem; min-width: 1.6rem; height: 1.6rem; border: 0; background: transparent; color: var(--texto); cursor: pointer; font-size: .95rem; padding: 0; }
+.ast-toggle--vazio { display: inline-block; cursor: default; }
+.ast-no__rotulo {
+  display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .35rem; text-align: left; cursor: pointer;
+  padding: .2rem .5rem; border: 1px solid var(--borda); border-left-width: 4px; border-radius: 6px;
+  background: var(--superficie); color: var(--texto); font: inherit; font-size: .88rem;
+}
+.ast-no__rotulo:hover { border-color: var(--destaque); }
+.ast-no__tipo { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; }
+.ast-no__attrs { color: var(--texto-suave); font-family: ui-monospace, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+.ast-no__papel { color: var(--texto-suave); font-style: italic; }
+.ast-no__cat { color: var(--texto-suave); }
+.ast-no__simbolo { font-weight: 700; }
+.ast-cat-estrutura { border-left-color: hsl(270 60% 50%); }
+.ast-cat-declaracao { border-left-color: hsl(215 70% 50%); }
+.ast-cat-controle { border-left-color: hsl(30 85% 50%); }
+.ast-cat-expressao { border-left-color: hsl(335 65% 50%); }
+.ast-cat-folha { border-left-color: hsl(150 55% 40%); }
+.ast-no--sel > .ast-no__linha .ast-no__rotulo { outline: 2px solid var(--destaque); outline-offset: 1px; background: var(--fundo); }
+.ast-no--atual > .ast-no__linha .ast-no__rotulo { box-shadow: 0 0 0 3px var(--destaque); }
+.ast-no--fantasma > .ast-no__linha .ast-no__rotulo { opacity: .3; border-style: dashed; }
+.ast-no--filtrado > .ast-no__linha .ast-no__rotulo { opacity: .35; }
+.ast-no--destaque > .ast-no__linha .ast-no__rotulo { font-weight: 700; box-shadow: 0 0 0 2px var(--sint-borda); }
+.ast-sel { background: hsl(50 100% 80%); color: #1b1f2a; border-radius: 3px; outline: 2px solid hsl(40 90% 45%); padding: 0 .1em; font-weight: 700; }
+.ast-detalhes { font-size: .92rem; }
+.ast-det { margin: 0 0 .45rem; overflow-wrap: anywhere; }
+.ast-det code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.ast-texto-det { margin-top: 1rem; }
+.ast-texto-det summary { cursor: pointer; font-weight: 600; }
+
+.ast-no[aria-expanded="false"] > .ast-grupo { display: none; }

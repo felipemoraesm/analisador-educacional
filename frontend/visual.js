@@ -28,7 +28,7 @@
 
   var CATEGORIAS = [
     { tipo: 'PALAVRA_RESERVADA', rotulo: 'Palavra reservada', curto: 'RESERV', css: 'tk-reservada',
-      exemplos: 'int, float, char, if, else, while, return',
+      exemplos: 'int, float, char, void, if, else, while, return',
       descricao: 'Palavra com significado fixo na linguagem; não pode ser usada como nome.' },
     { tipo: 'IDENTIFICADOR', rotulo: 'Identificador', curto: 'ID', css: 'tk-identificador',
       exemplos: 'numero, _x1, total2',
@@ -202,6 +202,12 @@
   function renderCodigoColorido(doc, pre, codigo, dados) {
     limpar(pre);
     var pos = 0;
+    // Erros sintáticos (Etapa 4): o token onde o parser encontrou o problema recebe uma marca extra
+    var sint = (dados.sintatico && dados.sintatico.executado && !dados.sintatico.sucesso) ? dados.sintatico.erros || [] : [];
+    var marcas = {};
+    sint.forEach(function (e) { marcas[e.inicio] = e; });
+    var fimInesperado = sint.some(function (e) { return e.encontrado_tipo === 'FIM'; });
+    var ultimoSpan = null;
     itensOrdenados(dados).forEach(function (it) {
       var d = it.d;
       if (d.inicio < pos || d.fim > codigo.length) return; // defesa contra dados inconsistentes
@@ -210,6 +216,11 @@
       if (it.classe === 'token') {
         span = el(doc, 'span', 'tk ' + categoria(d.tipo).css, codigo.slice(d.inicio, d.fim));
         span.title = categoria(d.tipo).rotulo + ' (linha ' + d.linha + ', coluna ' + d.coluna + ')';
+        if (marcas[d.inicio] && marcas[d.inicio].encontrado_tipo !== 'FIM') {
+          span.classList.add('tk-sint');
+          span.title += ' | Erro sintático aqui: ' + marcas[d.inicio].mensagem;
+        }
+        ultimoSpan = span;
       } else if (it.classe === 'comentario') {
         span = el(doc, 'span', 'tk tk-comentario', codigo.slice(d.inicio, d.fim));
         span.title = 'Comentário ignorado pelo scanner';
@@ -221,6 +232,7 @@
       pos = d.fim;
     });
     if (pos < codigo.length) pre.appendChild(doc.createTextNode(codigo.slice(pos)));
+    if (fimInesperado && ultimoSpan) ultimoSpan.classList.add('tk-sint-fim'); // o código terminou cedo demais
   }
 
   /* ---------- Passo a passo ---------- */

@@ -38,6 +38,7 @@ function criarFetch(config = {}) {
   const chamadas = [];
   const padrao = {
     '/api/exemplos': () => resposta(200, { exemplos: EXEMPLOS }),
+    '/api/gramatica': () => resposta(200, { ebnf: 'programa = { comando } ;\n' }),
     '/api/analisar': (opcoes) => {
       const codigo = JSON.parse(opcoes.body).codigo;
       const real = respostaPorCodigo(codigo);
