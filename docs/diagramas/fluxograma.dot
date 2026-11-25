@@ -1,0 +1,76 @@
+// Fluxograma detalhado do Analisador Educacional (Etapa 4) — versão do artigo
+// Gerar (na pasta docs/diagramas):
+//   dot -Tpdf fluxograma.dot -o ../img/fluxograma-detalhado.pdf
+//   dot -Tsvg fluxograma.dot -o ../img/fluxograma-detalhado.svg
+//   dot -Tpng -Gdpi=200 fluxograma.dot -o ../img/fluxograma-detalhado.png
+// Estilos por situação:
+//   IMPLEMENTADO -> fillcolor="#d9f2d9", color="#2e7d32", style="rounded,filled"
+//   PREVISTO (Etapa 5) -> fillcolor="#f2f2f2", color="#7a7a7a", style="rounded,filled,dashed"
+
+digraph fluxo {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=11, nodesep=0.35, ranksep=0.32, pad=0.2, newrank=true];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, margin="0.12,0.06", width=3.6,
+         fillcolor="#d9f2d9", color="#2e7d32"];
+  edge  [fontname="Helvetica", fontsize=9, arrowsize=0.7];
+
+  inicio   [shape=oval, width=2.8, label="Início: usuário acessa a interface web"];
+  entrada  [label="1. Digita, cola ou seleciona um exemplo\n(GET /api/exemplos) e clica em Analisar"];
+  vfront   [shape=diamond, width=2.6, height=0.9, label="2. Validação no\nfrontend: vazio ou\nsó espaços?"];
+  efront   [label="Retorno 1: mensagem na tela,\nsem chamar a API (código mantido)", width=2.5];
+  post     [label="3. POST /api/analisar {\"codigo\": ...}\n(Nginx repassa ao backend)"];
+  vback    [shape=diamond, width=2.7, height=1.05, label="4. Validação no backend:\nJSON, vazio, espaços,\nUnicode, > 20.000 caracteres?"];
+  eback    [label="Retorno 2: HTTP 400/413\n+ mensagem de entrada inválida", width=2.5];
+  lexico   [label="5. Análise léxica: scanner escrito à mão\n(maior casamento, autômatos)"];
+  tokens   [label="6. Tokens (categoria, lexema, linha, coluna,\ncaminho do autômato) e erros léxicos com dica"];
+  declex   [shape=diamond, width=2.8, height=1.0, label="7. Decisão de projeto:\nhá erros léxicos?"];
+  naoparse [label="Retorno 3 (fase léxica): parser NÃO executa\nsintatico.executado = false, sucesso = null,\nmotivo explicado; erros léxicos exibidos", width=3.0];
+  parser   [label="8. Análise sintática: parser descendente\nrecursivo escrito à mão (gramática EBNF)"];
+  decsin   [shape=diamond, width=2.8, height=0.9, label="9. Há erros\nsintáticos?"];
+  esin     [label="Retorno 4 (fase sintática): ast = null;\naté 10 erros com linha, coluna, encontrado,\nesperado, regra violada e dica (anti-cascata)", width=3.0];
+  ast      [label="10. AST: nós com tipo, papel, atributos e posição;\nresumo, regras de cada nó e versão em texto"];
+
+  node [fillcolor="#f2f2f2", color="#7a7a7a", style="rounded,filled,dashed", fontcolor="#444444"];
+  semant   [label="11. Análise semântica (Etapa 5, não implementada):\ndeclaração antes do uso, escopo, tipos, chamadas"];
+  tabsimb  [label="12. Tabela de símbolos e erros/avisos\nsemânticos (Etapa 5)"];
+
+  node [fillcolor="#d9f2d9", color="#2e7d32", style="rounded,filled", fontcolor="black"];
+  resposta [label="13. Resposta JSON única (HTTP 200): campos da Etapa 3\n(mantidos) + \"lexico\" + \"sintatico\""];
+  apres    [label="14. Apresentação: erros léxicos e sintáticos distintos, tabela de tokens,\npasso a passo do scanner, código colorido, AST navegável\n(nó ↔ trecho ↔ regra ↔ tokens), construção animada, JSON e texto"];
+  fim      [shape=oval, width=2.8, label="Usuário altera o código (inclusive errando\nde propósito) e analisa de novo"];
+
+  inicio -> entrada -> vfront;
+  vfront -> post   [label=" não"];
+  vfront -> efront [label=" sim"];
+  efront -> entrada [style=dashed, constraint=false, label=" retorno"];
+  post -> vback;
+  vback -> lexico [label=" não (válida)"];
+  vback -> eback  [label=" sim"];
+  eback -> entrada [style=dashed, constraint=false, label=" retorno"];
+  lexico -> tokens -> declex;
+  declex -> parser   [label=" não"];
+  declex -> naoparse [label=" sim"];
+  parser -> decsin;
+  decsin -> ast  [label=" não"];
+  decsin -> esin [label=" sim"];
+  ast -> semant [style=dashed];
+  semant -> tabsimb [style=dashed];
+  tabsimb -> resposta [style=dashed];
+  ast -> resposta [label=" (até a Etapa 5)"];
+  naoparse -> resposta [label=" erros léxicos"];
+  esin -> resposta [label=" erros sintáticos"];
+  resposta -> apres -> fim;
+
+  { rank=same; vfront; efront; }
+  { rank=same; vback; eback; }
+  { rank=same; declex; naoparse; }
+  { rank=same; decsin; esin; }
+
+  leg [shape=plaintext, style="", width=0, margin=0, label=<
+    <TABLE BORDER="1" COLOR="#999999" CELLBORDER="1" CELLSPACING="4" CELLPADDING="4" STYLE="rounded">
+      <TR><TD BORDER="0"><B>Legenda</B></TD></TR>
+      <TR><TD BGCOLOR="#d9f2d9" COLOR="#2e7d32" STYLE="rounded">Implementado (Etapas 1–4)</TD></TR>
+      <TR><TD BGCOLOR="#f2f2f2" COLOR="#7a7a7a" STYLE="rounded,dashed">Previsto (Etapa 5)</TD></TR>
+      <TR><TD BORDER="0">- - -&gt; tracejado: retorno ao usuário ou fluxo previsto</TD></TR>
+    </TABLE>>];
+  { rank=same; inicio; leg; }
+}

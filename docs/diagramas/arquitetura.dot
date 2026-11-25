@@ -1,0 +1,45 @@
+// Arquitetura do Analisador Educacional (Etapa 4)
+// Gerar (na pasta docs/diagramas): dot -Tpdf arquitetura.dot -o ../img/arquitetura.pdf ; -Tsvg ; -Tpng -Gdpi=200
+digraph arq {
+  graph [rankdir=TB, fontname="Helvetica", fontsize=11, nodesep=0.3, ranksep=0.35, pad=0.15, compound=true];
+  node  [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=9.5, fillcolor="#d9f2d9", color="#2e7d32", margin="0.1,0.05"];
+  edge  [fontname="Helvetica", fontsize=8.5, arrowsize=0.7];
+
+  subgraph cluster_nav {
+    label="Navegador do usuário (desktop; celular testado em emulação)"; style="rounded"; color="#555555";
+    ui    [label="index.html + style.css\n(tela, tutorial, gramática)"];
+    appjs [label="app.js\nvalidação local, cliente HTTP"];
+    visjs [label="visual.js\ntabela de tokens, cores,\npasso a passo do scanner"];
+    arvjs [label="arvore.js\nerros sintáticos, AST navegável,\nconstrução animada, JSON, texto"];
+  }
+
+  subgraph cluster_compose {
+    label="Docker Compose (rede interna)"; style="rounded,dashed"; color="#1f5fa8"; fontcolor="#1f5fa8";
+    subgraph cluster_front {
+      label="Contêiner frontend: nginx:1.27-alpine\n(porta 80 → ${FRONTEND_PORT:-8080})"; style="rounded"; color="#555555";
+      nginx [label="Nginx: arquivos estáticos\n+ proxy /api/ → backend:8000\n(corpo ≤ 1 MB, timeout 15 s)"];
+    }
+    subgraph cluster_back {
+      label="Contêiner backend: python:3.12-slim,\nUvicorn + FastAPI (porta 8000, só interna)"; style="rounded"; color="#555555";
+      main [label="main.py: rotas /api/analisar, /api/gramatica,\n/api/exemplos, /api/health; tratamento de erros"];
+      val  [label="validacao.py\n(vazio, espaços, Unicode, 20.000 caracteres)"];
+      scan [label="scanner.py\ntokens, erros léxicos, caminho"];
+      anl  [label="analise.py\nintegra scanner + parser\n(decisão sobre erros léxicos)"];
+      pars [label="parser.py\ndescendente recursivo, AST,\nerros com recuperação"];
+      gram [label="gramatica.py\nEBNF, precedência,\nmetadados dos nós"];
+      sem  [label="Análise semântica (Etapa 5)\ntabela de símbolos, escopos, tipos", fillcolor="#f2f2f2", color="#7a7a7a", style="rounded,filled,dashed"];
+      ex   [label="exemplos.py\n12 programas prontos"];
+    }
+  }
+
+  ui -> appjs [arrowhead=none, style=dotted];
+  appjs -> visjs [label="lexico", fontsize=8];
+  appjs -> arvjs [label="sintatico", fontsize=8];
+  appjs -> nginx [label="HTTP  POST /api/analisar\nGET /api/exemplos, /api/gramatica", lhead=cluster_front];
+  nginx -> main [label="proxy_pass"];
+  main -> val -> scan -> anl;
+  anl -> pars [label="tokens\n(se não houver erro léxico)"];
+  pars -> gram [style=dotted, arrowhead=none];
+  pars -> sem [style=dashed, label="AST"];
+  main -> ex [style=dotted, arrowhead=none];
+}

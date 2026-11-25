@@ -1,44 +1,48 @@
 # Analisador Educacional de Compiladores
 
-Software educacional para visualizar as fases de análise **léxica, sintática e semântica** de um programa. O usuário escreve (ou escolhe) um código-fonte em C e vê como o compilador o "enxerga".
+Software educacional para visualizar as fases de análise **léxica, sintática e semântica** de um programa. O usuário escreve (ou escolhe) um código em C e vê como o compilador o "enxerga".
 
-> **Estado atual (Etapa 3):** análise léxica (scanner) implementada e integrada à interface: tokens, erros léxicos, passo a passo animado, tutorial e testes automatizados. **As análises sintática (Etapa 4) e semântica (Etapa 5) ainda NÃO estão implementadas.** Um programa com erros sintáticos, mas com tokens válidos, é tokenizado normalmente.
+> **Estado atual (Etapa 4):** análise léxica (scanner) e **análise sintática (parser) com construção da AST**, integradas à interface, com testes automatizados. **A análise semântica (Etapa 5) ainda NÃO está implementada**: o sistema aceita, por exemplo, uma variável não declarada. O diferencial opcional com Ollama/Llama 3.2 **não** foi implementado nesta versão.
 
 ## 1. Objetivo, linguagem e escopo
 
-**Linguagem analisada: C** (um subconjunto). O escopo léxico completo, com regras de formação, exemplos e tratamento de erros, está em [`docs/escopo-lexico.md`](docs/escopo-lexico.md). Resumo:
+**Linguagem analisada: C** (um subconjunto).
 
-| Categoria | Exemplos |
-|---|---|
-| Palavras reservadas | `int` `float` `char` `if` `else` `while` `return` |
-| Identificadores | `numero`, `_x1` (letra ou `_`, seguida de letras, dígitos ou `_`) |
-| Literais | inteiros `10`; reais `3.14`; strings `"ola\n"`; caracteres `'a'`, `'\n'` |
-| Operadores | aritméticos `+ - * / %`; relacionais `== != < > <= >=`; lógicos `&& \|\| !`; atribuição `=` |
-| Delimitadores | `( ) { } [ ] ; ,` |
-| Comentários | `// linha` e `/* bloco */` (ignorados) |
-| Espaços e quebras de linha | ignorados |
-| Caracteres não reconhecidos | geram **erro léxico** com linha, coluna e dica; a leitura continua |
+- **Escopo léxico** (tokens, regras e erros): [`docs/escopo-lexico.md`](docs/escopo-lexico.md)
+- **Gramática (EBNF), precedência e construções suportadas e fora do escopo:** [`docs/gramatica.md`](docs/gramatica.md)
+- **Parser e AST** (estratégia, formato dos nós, contrato, erros): [`docs/parser.md`](docs/parser.md)
 
-Fora do escopo por enquanto: pré-processador (`#include`), `for`, `void`, ponteiros, `++`/`--`, hexadecimal e notação científica.
+Resumo do que a gramática cobre: declarações com valor inicial opcional, atribuições, expressões aritméticas, relacionais e lógicas (com a precedência correta), `if`/`else`, `while`, blocos, `return`, **definição de funções com parâmetros** e **chamadas**. Fora do escopo: arrays, ponteiros, `for`, protótipos, pré-processador, expressões soltas como instrução.
 
-### Por que C e o que a ferramenta faz de diferente
+```ebnf
+programa      = { definicao_funcao | declaracao | comando } ;
+declaracao    = tipo IDENTIFICADOR [ "=" expressao ] ";" ;
+condicional   = "if" "(" expressao ")" comando [ "else" comando ] ;
+soma          = termo { ( "+" | "-" ) termo } ;
+termo         = unario { ( "*" | "/" | "%" ) unario } ;
+(* ... gramática completa em docs/gramatica.md e no tutorial da interface *)
+```
 
-Entre os três artigos fichados na Tarefa 1, nenhum usa **C** como linguagem analisada (Portugol, *parsers* gerados com CUP/Java e DSLs em Python). Além disso, esta ferramenta reúne em um só lugar recursos que aparecem separados nesses trabalhos:
+### O que a ferramenta faz de diferente
 
-- **Passo a passo caractere a caractere**, com o estado do autômato a cada leitura (ideia do autômato animado e dos botões de avançar/voltar do Artigo 1);
-- **Controles de reprodução, retrocesso e salto** por token (ideia do ParVis, Artigo 2) e velocidade ajustável;
-- **Tabela de tokens e diagramas de autômato** (como no Artigo 3), mais **código colorido** por categoria e **sequência de tokens** `<categoria, lexema>` para comparar com o código original;
-- **Erros léxicos acumulados** com mensagem didática e dica de correção (por exemplo, `&` sozinho sugere `&&`);
-- **Tutorial integrado** à tela e documentação do escopo léxico, do scanner e do contrato da API;
-- **Layout responsivo**, utilizável no celular (testado em emulação).
+Entre as dez fontes comparadas no artigo (Tarefas 1 a 4), nenhuma analisa um subconjunto declarado da própria linguagem **C**, e nenhuma descreve o formato das mensagens de erro nem avalia sua eficácia. Recursos isolados, como a construção passo a passo da árvore, já existem na literatura; o que esta ferramenta reúne em um só lugar é:
+
+- **Scanner passo a passo**, caractere a caractere, com os estados do autômato;
+- **Árvore sintática (AST) navegável**: clique em um nó e o trecho do código é destacado, com a regra gramatical, a posição e os tokens daquele nó (relaciona árvore, código, regra e tabela de tokens);
+- **Construção da árvore animada**, do mais interno para a raiz, com avançar, voltar e reproduzir;
+- **Erros léxicos e sintáticos acumulados**, visualmente distintos, com mensagem didática, o que era esperado, a **regra da gramática violada** e dica de correção;
+- **Gramática publicada** na interface e na documentação, **tutorial integrado**, exportação da AST em JSON e versão em texto acessível;
+- **Layout responsivo** (testado em emulação de celular).
+
+> Isto descreve o que está implementado e verificável. Não se alega ineditismo: o diferencial pretendido e a comparação com a literatura estão em `docs/materiais-e-metodos.md` e no artigo.
 
 ## 2. Tecnologias
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend | HTML, CSS e JavaScript puro, servidos pelo Nginx 1.27 |
-| Backend | Python 3.12 + FastAPI (Uvicorn). **Scanner escrito à mão em Python puro**, sem dependências novas (justificativa em [`docs/scanner.md`](docs/scanner.md)) |
-| Orquestração | Docker Compose |
+| Frontend | HTML, CSS e JavaScript puros, servidos pelo Nginx 1.27 |
+| Backend | Python 3.12 + FastAPI (Uvicorn). **Scanner e parser escritos à mão**, sem dependências novas |
+| Orquestração | Docker Compose (a Etapa 4 **não** adicionou serviços, portas nem dependências) |
 | Testes | pytest (backend), `node:test` + jsdom (interface), Playwright (ponta a ponta), scripts shell (API e implantação) |
 
 ## 3. Estrutura do repositório
@@ -49,21 +53,25 @@ Entre os três artigos fichados na Tarefa 1, nenhum usa **C** como linguagem ana
 │   ├── app/
 │   │   ├── main.py          # rotas e tratamento de erros
 │   │   ├── scanner.py       # analisador léxico (Etapa 3)
+│   │   ├── parser.py        # analisador sintático e AST (Etapa 4)
+│   │   ├── gramatica.py     # gramática EBNF e metadados dos nós
+│   │   ├── analise.py       # integra scanner + parser na resposta
 │   │   ├── validacao.py     # validações de entrada (Etapa 2)
 │   │   └── exemplos.py      # programas de exemplo
-│   ├── tests/               # test_scanner.py, test_api.py, test_validacao.py, test_fixtures.py
+│   ├── tests/               # scanner, parser, gramática, API, validação, fixtures
 │   └── Dockerfile
 ├── frontend/
-│   ├── index.html           # tela, tutorial e painéis
-│   ├── style.css
+│   ├── index.html, style.css
 │   ├── app.js               # validação local, cliente HTTP e interação
-│   ├── visual.js            # tabela, cores, erros e passo a passo
-│   ├── nginx.conf           # serve a página e repassa /api/ ao backend
+│   ├── visual.js            # tabela de tokens, cores, passo a passo do scanner
+│   ├── arvore.js            # erros sintáticos, AST navegável e construção animada
+│   ├── nginx.conf
 │   ├── tests/               # interface (jsdom), integração e fixtures reais do backend
 │   └── Dockerfile
-├── tests/e2e/               # testes de ponta a ponta com navegador (Playwright)
-├── scripts/                 # verificar_api.sh, testar_implantacao.sh, gerar_fixtures.py, capturar_prints.py
-├── docs/                    # escopo-lexico.md, scanner.md, testes.md e prints
+├── tests/e2e/               # testes de ponta a ponta (Playwright)
+├── scripts/                 # verificar_api.sh, testar_implantacao.sh, gerar_fixtures.py, capturar_prints.py, gerar_fluxograma.py, gerar_casos.py
+├── docs/                    # escopo-lexico, gramatica, scanner, parser, fluxograma, materiais-e-metodos, casos-de-teste,
+│                            # testes, prints, avaliacao/ (formulário) e diagramas/ (Graphviz)
 ├── config/.env.example
 ├── docker-compose.yml
 └── README.md
@@ -85,146 +93,137 @@ docker compose up --build
 
 Acesse **http://localhost:8080**. Para rodar em segundo plano use `-d`. Para trocar a porta: `cp config/.env.example .env` e edite `FRONTEND_PORT`.
 
-Para encerrar:
+Para encerrar: `docker compose down`.
 
-```bash
-docker compose down
-```
-
-Se aparecer erro de nome de contêiner já em uso (de uma execução anterior em outra pasta): `docker rm -f analisador-backend analisador-frontend`. Não há senhas nem credenciais no repositório; a única variável opcional é `FRONTEND_PORT`. A Etapa 3 **não adicionou dependências nem portas**.
+Se aparecer erro de nome de contêiner já em uso (execução anterior em outra pasta): `docker rm -f analisador-backend analisador-frontend`. Não há senhas nem credenciais no repositório.
 
 ## 6. Como usar a interface
 
-1. Abra o **Tutorial** no topo (o que é scanner, token, lexema, autômatos e como usar a tela).
-2. Escolha um exemplo ou escreva/cole o seu código, e clique em **Analisar código** (ou `Ctrl + Enter`).
-3. Em **Resultados**: mensagem da análise (verde sem erros léxicos, amarelo com erros), contagem por categoria e **lista de erros léxicos** com linha, coluna e dica.
-4. Abaixo aparecem:
-   - **Passo a passo do scanner**: Próximo/Anterior, Próximo token/Token anterior, Início/Fim e Reproduzir com velocidade. Mostra o lexema em montagem, o estado do autômato a cada caractere e os tokens reconhecidos até ali;
-   - **Código colorido** (comentários em cinza, erros sublinhados) e **sequência de tokens** `<categoria, lexema>`;
-   - **Tabela de tokens** (tipo, lexema, linha, coluna).
-5. **Limpar** apaga o código, o exemplo e os resultados.
+1. Abra o **Tutorial** (o que é scanner, token, parser, AST, a gramática e a precedência).
+2. Escolha um exemplo ou escreva/cole o seu código e clique em **Analisar código** (ou `Ctrl + Enter`).
+3. **Resultados:** análise léxica (resumo e erros léxicos) e **análise sintática** (verde se válida; amarela com a lista de erros sintáticos).
+4. Abaixo: **passo a passo do scanner**, **código colorido**, **árvore sintática (AST)** e **tabela de tokens**.
+5. Na AST: clique em um nó; use *Expandir/Recolher tudo*, o filtro por tipo, *Exportar JSON* e os controles da **construção passo a passo**.
+6. Com **erro léxico**, o parser **não roda** (a interface explica o motivo); com **erro sintático**, a AST não é construída e o trecho problemático é marcado no código.
 
 ## 7. Exemplos disponíveis
 
 | # | Exemplo | O que demonstra |
 |---|---|---|
-| 1 | Declaração e inicialização | `int`, identificadores, `=`, inteiros, `;` |
-| 2 | Operações aritméticas | `+ - * /`, parênteses |
-| 3 | Estrutura condicional (if) | `if`, `>`, chaves |
-| 4 | if/else com comentário | `else`, `==`, comentário `//` (ignorado) |
-| 5 | Erros sintáticos/semânticos (tokens válidos) | falta `;`, expressão incompleta, variável não declarada: **o scanner tokeniza normalmente** |
-| 6 | Tipos e literais | `float`, `char`, real `1.75`, caractere `'A'`, escape `'\n'`, string `"Ola, mundo!\n"` |
-| 7 | Operadores, delimitadores e while | maior casamento (`<=`, `!=`, `&&`, `\|\|`, `!`), `%`, `while`, `return` |
-| 8 | Erros léxicos intencionais | `@`, `$`, `&` sozinho, `3.`, `'ab'`, `2x`, string e comentário não fechados (8 erros de uma vez) |
+| 1 | Declaração e inicialização | `int`, atribuição |
+| 2 | Operações aritméticas | `+ - * /` e parênteses |
+| 3 | Estrutura condicional (if) | `if`, `>`, bloco |
+| 4 | if/else com comentário | `else`, `==`, comentário ignorado |
+| 5 | Erros sintáticos (tokens válidos) | falta `;` e expressão incompleta: o scanner tokeniza, o parser aponta 2 erros |
+| 6 | Tipos e literais | `float`, `char`, real, caractere, string |
+| 7 | Operadores, delimitadores e while | maior casamento (`<=`, `&&`...), `while`, `return` |
+| 8 | Erros léxicos intencionais | 8 erros léxicos; o **parser não roda** |
+| 9 | Precedência e associatividade | `10 + 5 * 2`, `20 - 5 - 3`, `(10 + 5) * 2` |
+| 10 | Funções e chamadas | definição com parâmetros, `return`, chamadas aninhadas |
+| 11 | while com if/else aninhados | blocos dentro de blocos |
+| 12 | Erros sintáticos variados | 6 erros de uma vez (sem cascata) |
 
 Os exemplos ficam em `backend/app/exemplos.py` e são servidos por `GET /api/exemplos`.
 
-## 8. Contrato de comunicação (API)
+## 8. Contrato da API
 
-O navegador chama `/api/...` no Nginx, que repassa a `backend:8000`. Detalhes completos, com todos os campos, em [`docs/scanner.md`](docs/scanner.md).
+Detalhes completos em [`docs/parser.md`](docs/parser.md) (e `docs/scanner.md` para os campos léxicos).
 
-### `POST /api/analisar`
-
-Requisição: `{"codigo": "int numero = 10;"}`
-
-Resposta (HTTP 200, **inclusive com erros léxicos**: a análise foi feita e os erros são parte do resultado):
+`POST /api/analisar` com `{"codigo": "int resultado = 10 + 5 * 2;"}` devolve **HTTP 200** (inclusive com erros léxicos ou sintáticos):
 
 ```json
 {
-  "recebido": true,
-  "sucesso": true,
-  "mensagem": "Análise léxica concluída: 5 tokens, nenhum erro léxico.",
-  "linhas": 1, "caracteres": 16,
-  "tokens": [
-    { "tipo": "PALAVRA_RESERVADA", "lexema": "int", "linha": 1, "coluna": 1,
-      "inicio": 0, "fim": 3,
-      "caminho": [ { "c": "i", "classe": "letra", "estado": "IDENT" } ] }
-  ],
-  "erros": [],
-  "comentarios": [],
-  "resumo": { "total_tokens": 5, "total_erros": 0, "total_comentarios": 0,
-              "por_categoria": { "PALAVRA_RESERVADA": 1, "IDENTIFICADOR": 1,
-                                 "LITERAL_INTEIRO": 1, "OPERADOR_ATRIBUICAO": 1, "DELIMITADOR": 1 } }
+  "recebido": true, "sucesso": true, "mensagem": "Análise léxica concluída: 9 tokens, nenhum erro léxico.",
+  "linhas": 1, "caracteres": 27,
+  "tokens": [ "..." ], "erros": [], "comentarios": [], "resumo": { "...": "..." },
+  "lexico":   { "sucesso": true, "tokens": [ "..." ], "erros": [], "comentarios": [], "resumo": { "...": "..." } },
+  "sintatico": {
+    "executado": true, "sucesso": true,
+    "mensagem": "Análise sintática concluída: programa válido (AST com 7 nós).",
+    "ast": { "tipo": "PROGRAMA", "filhos": [ "..." ] },
+    "erros": [], "resumo": { "total_nos": 7, "altura": 5, "por_tipo": { "...": 0 } },
+    "regras": { "ADICAO": { "regra": "soma = ...", "descricao": "...", "categoria": "expressao" } },
+    "texto": "PROGRAMA  [1:1]\n└── ..."
+  }
 }
 ```
 
-(`tokens` abreviado.) Com erro léxico, `sucesso` é `false` e `erros` traz objetos como:
+Os campos da **Etapa 3 foram preservados** no nível superior; `lexico` e `sintatico` são acréscimos. Com erro sintático (`int numero = 10}`), `sintatico.sucesso` é `false`, `ast` é `null` e `erros` traz:
 
 ```json
-{ "tipo": "ERRO_LEXICO", "lexema": "@", "linha": 2, "coluna": 10,
-  "mensagem": "Caractere não reconhecido: '@'",
-  "dica": "Verifique se ele faz parte do subconjunto suportado." }
+{ "tipo": "ERRO_SINTATICO", "linha": 1, "coluna": 16, "encontrado": "}", "esperado": [";"],
+  "mensagem": "Era esperado ';' ao final da declaração, mas foi encontrado '}'.",
+  "regra": "declaracao = tipo IDENTIFICADOR [ \"=\" expressao ] \";\" ;" }
 ```
 
-| Situação | HTTP | Corpo |
-|---|---|---|
-| Análise concluída (com ou sem erros léxicos) | 200 | contrato acima |
-| Código vazio | 400 | `{"recebido": false, "erro": "codigo_vazio", "mensagem": "Informe um código-fonte antes de solicitar a análise."}` |
-| Somente espaços | 400 | `{"recebido": false, "erro": "codigo_somente_espacos", ...}` |
-| Corpo ausente, JSON malformado, campo faltando ou de tipo errado | 400 | `{"recebido": false, "erro": "requisicao_invalida", ...}` |
-| Acima de 20.000 caracteres | 413 | `{"recebido": false, "erro": "codigo_muito_grande", ...}` |
-| Erro inesperado | 500 | mensagem genérica; detalhes só no log do servidor |
+Com **erro léxico**, o parser não é executado: `sintatico.executado = false`, `sintatico.sucesso = null` e `sintatico.motivo` explica.
 
-Outros endpoints: `GET /api/exemplos`, `GET /api/health` e `GET /api/hello` (Etapa 1, mantido como teste de regressão).
-
-**Mudança em relação à Etapa 2:** a `mensagem` de sucesso passou a descrever a análise léxica (antes: "Código recebido com sucesso."). Os campos `recebido`, `linhas` e `caracteres` foram mantidos.
-
-### Exemplos de entrada e saída do scanner
-
-| Entrada | Saída (lexema → categoria) |
+| Situação | HTTP |
 |---|---|
-| `a<=b` | `a` ID · `<=` OPERADOR_RELACIONAL · `b` ID |
-| `x = 3.14;` | `x` ID · `=` ATRIBUICAO · `3.14` LITERAL_REAL · `;` DELIMITADOR |
-| `// c` + `int a;` | comentário ignorado; `int` `a` `;` |
-| `int a = @;` | `int` `a` `=` `;` e **erro** `@` (linha 1, coluna 9) |
-| `3.` | **erro**: literal real malformado (faltam dígitos depois do ponto) |
+| Análise concluída (com ou sem erros) | 200 |
+| Código vazio / só espaços / corpo inválido / Unicode inválido | 400 |
+| Acima de 20.000 caracteres | 413 |
+| Erro inesperado | 500 (mensagem genérica) |
+
+Outros endpoints: `GET /api/gramatica` (EBNF, precedência e metadados), `GET /api/exemplos`, `GET /api/health` e `GET /api/hello` (Etapa 1, mantido como regressão).
+
+### Decisão sobre erros léxicos
+
+**O parser não é executado quando há erro léxico**: tokens com lacunas produziriam erros sintáticos enganosos, em cascata. Os erros léxicos continuam sendo exibidos e a interface explica o motivo. Testado no backend, na interface e de ponta a ponta.
+
+### Recuperação de erros sintáticos
+
+Modo pânico (sincroniza em `;`, `}` ou início de instrução), até **10 erros** por análise, com regras contra erros em cascata (`;` esquecido, `else` órfão, palavra reservada ofensora, fim de código reportado uma vez). Limites: 40 níveis de aninhamento e altura 120 da árvore.
 
 ## 9. Testes automatizados
 
 | Tipo | Local | Comando |
 |---|---|---|
-| Unitários do scanner e endpoints | `backend/tests/` | `cd backend && pip install -r requirements-dev.txt && pytest` |
+| Scanner, parser, gramática, endpoints e casos do artigo | `backend/tests/` | `cd backend && pip install -r requirements-dev.txt && pytest` |
 | Interface (jsdom) | `frontend/tests/` | `cd frontend && npm install && npm test` |
-| Integração frontend↔backend real | `frontend/tests/integracao.test.js` | `API_URL=http://localhost:8080 npm run test:integracao` |
+| Integração frontend ↔ backend real | `frontend/tests/integracao.test.js` | `API_URL=http://localhost:8080 npm run test:integracao` |
 | Ponta a ponta (navegador) | `tests/e2e/` | `pip install -r tests/e2e/requirements.txt && playwright install chromium && pytest tests/e2e -v` |
-| Verificação HTTP da API | `scripts/verificar_api.sh` | `bash scripts/verificar_api.sh http://localhost:8080` |
-| Implantação (Docker Compose) | `scripts/testar_implantacao.sh` | `bash scripts/testar_implantacao.sh` (opcional: `RODAR_E2E=1`) |
+| Verificação HTTP | `scripts/verificar_api.sh` | `bash scripts/verificar_api.sh http://localhost:8080` |
+| Implantação (Docker Compose) | `scripts/testar_implantacao.sh` | `bash scripts/testar_implantacao.sh` |
 
-Os testes de integração, de ponta a ponta e de implantação precisam da aplicação em execução (`docker compose up --build -d`). No Windows, use o **Git Bash** para os scripts `.sh`.
+Integração, ponta a ponta e implantação exigem a aplicação no ar (`docker compose up --build -d`). No Windows, use o **Git Bash** para os scripts `.sh`. As fixtures do frontend são respostas **reais** do backend (`cd backend && python ../scripts/gerar_fixtures.py`); `test_fixtures.py` falha se ficarem desatualizadas. Também há testes que mantêm sincronizados o código da gramática e `docs/gramatica.md`.
 
-As fixtures do frontend (`frontend/tests/fixtures/`) são respostas **reais** do backend; o teste `backend/tests/test_fixtures.py` falha se elas ficarem desatualizadas (regenerar com `cd backend && python ../scripts/gerar_fixtures.py`).
-
-**Regressão:** os testes das Etapas 1 e 2 (`/api/hello`, `/api/health`, validações, exemplos, edição, falhas de comunicação) continuam no conjunto e são executados junto.
+**Regressão:** todos os testes das Etapas 1 a 3 continuam no conjunto. Os poucos testes antigos alterados de propósito estão listados em [`docs/testes.md`](docs/testes.md).
 
 ### Resultados
 
-Registro completo (comandos, falhas encontradas e correções, mudanças intencionais) em [`docs/testes.md`](docs/testes.md).
+Registro completo (comandos, falhas encontradas e corrigidas, mudanças intencionais) em [`docs/testes.md`](docs/testes.md).
 
 | Suíte | Resultado |
 |---|---|
-| Scanner (unitários) | 154 aprovados, 0 reprovados |
-| Backend (total, com endpoints e fixtures) | 202 aprovados, 0 reprovados |
-| Interface – Etapa 2 (regressão) | 37 aprovados, 0 reprovados |
-| Interface – Etapa 3 | 37 aprovados, 0 reprovados |
-| Integração com backend real | 10 aprovados, 0 reprovados |
-| Ponta a ponta (Chromium) | 25 aprovados, 0 reprovados |
-| Verificação HTTP da API | 23/23 aprovadas |
-| Implantação com Docker Compose | Aprovada: serviços iniciaram, backend saudável e 23/23 verificações da API |
+| Scanner (unitários) | 159 aprovados |
+| Parser (unitários, aleatórios e de robustez) | 114 aprovados |
+| Casos de teste do artigo (`test_casos_artigo.py`, 13/11/2026) | 68 aprovados, 7 ignorados (Etapa 5) |
+| Backend (total, com gramática, endpoints, fixtures e casos do artigo) | 415 aprovados, 7 ignorados |
+| Interface – Etapa 2, Etapa 3 e Etapa 4 | 37 + 37 + 42 aprovados |
+| Integração com backend real | 16 aprovados |
+| Ponta a ponta (Chromium) | 41 aprovados |
+| Verificação HTTP | 34/34 aprovadas |
+| **Total** | **622 aprovados, 0 reprovados** (integração, E2E e HTTP da execução anterior) |
+| Implantação com Docker Compose (24/11/2026) | **Aprovada**: imagens construídas, backend saudável e 34/34 verificações HTTP via Nginx nos contêineres |
 
-Os números acima foram obtidos com Uvicorn e Nginx (com a `nginx.conf` do projeto) **fora de contêineres**.
+Os números das suítes vieram de execuções com Uvicorn e Nginx (com a `nginx.conf` do projeto) **fora de contêineres**. A implantação foi verificada à parte, com Docker Compose, por `scripts/testar_implantacao.sh` (registro em [`docs/testes.md`](docs/testes.md)).
 
 ## 10. Prints da interface
 
 | | |
 |---|---|
-| ![Tela inicial](docs/img/01-tela-inicial.png) | ![Tutorial](docs/img/02-tutorial.png) |
-| ![Análise sem erros](docs/img/03-analise-lexica-sucesso.png) | ![Erros léxicos](docs/img/04-erros-lexicos.png) |
-| ![Passo a passo](docs/img/05-passo-a-passo.png) | ![Código colorido](docs/img/06-codigo-colorido.png) |
-| ![Tabela de tokens](docs/img/07-tabela-de-tokens.png) | ![Entrada vazia](docs/img/08-validacao-entrada-vazia.png) |
-| ![Falha de comunicação](docs/img/09-falha-comunicacao.png) | ![Celular](docs/img/11-celular-passo-a-passo.png) |
+| ![AST e seleção de nó](docs/img/03-ast-selecao-de-no.png) | ![Construção passo a passo](docs/img/04-ast-construcao-passo-a-passo.png) |
+| ![Erros sintáticos](docs/img/07-erros-sintaticos.png) | ![Erro léxico sem parser](docs/img/09-erro-lexico-sem-parser.png) |
+| ![Funções](docs/img/06-ast-funcoes.png) | ![Scanner passo a passo](docs/img/10-scanner-passo-a-passo.png) |
+| ![Tutorial](docs/img/02-tutorial.png) | ![Celular](docs/img/13-celular-ast.png) |
 
-<!-- Para adicionar seu print da execução com Docker: salve em docs/img/12-print-docker.png e troque esta linha por:
-![Interface em execução com Docker](docs/img/12-print-docker.png) -->
+<!-- Para adicionar seu print da execução com Docker: salve em docs/img/14-print-docker.png e troque esta linha por:
+![Interface em execução com Docker](docs/img/14-print-docker.png) -->
+
+Fluxograma do sistema: [`docs/fluxograma.md`](docs/fluxograma.md) (versão simples e versão detalhada do artigo). Arquitetura: [`docs/img/arquitetura.png`](docs/img/arquitetura.png).
+
+Documentação para o artigo (Tarefa 4): [`docs/materiais-e-metodos.md`](docs/materiais-e-metodos.md) (critérios C1–C18 e comparação com a literatura), [`docs/casos-de-teste.md`](docs/casos-de-teste.md) (78 casos), [`docs/avaliacao/formulario.md`](docs/avaliacao/formulario.md) (avaliação por pares) e [`docs/diagramas/`](docs/diagramas/) (fontes Graphviz).
 
 ## 11. Validação de instalação limpa
 
@@ -238,23 +237,25 @@ cd analisador-educacional
 bash scripts/testar_implantacao.sh
 ```
 
-Registro (preencher):
+Registro:
 
-- Data: 29/10/2026
+- Data: 24/11/2026
 - Sistema operacional: Windows 11
-- Versões de Docker / Compose: 29.8.2
-- Resultado: Aprovado
+- Versões de Docker / Compose: Docker 29.8.2 / Docker Compose v5.6.0
+- Comando: `bash scripts/testar_implantacao.sh` (Git Bash)
+- Resultado: **Aprovado**. Imagens construídas, `analisador-backend` saudável, `analisador-frontend` iniciado e 34/34 verificações HTTP aprovadas.
 
 ## 12. Limitações conhecidas
 
-- **Não há análise sintática nem semântica** (Etapas 4 e 5). O scanner só reconhece tokens: um `if (x ;` gera tokens válidos.
-- Escopo léxico limitado ao subconjunto documentado (sem pré-processador, `for`, `void`, ponteiros, hexadecimal ou notação científica).
-- Identificadores aceitam só letras ASCII; letra acentuada fora de string ou comentário é erro léxico.
-- Código limitado a 20.000 caracteres; a tabela exibe até 2.000 tokens e a sequência até 400 (há aviso na tela).
-- Os testes de interface usam jsdom (sem CSS); os de navegador cobrem só Chromium, e o **celular é emulado**, não testado em aparelho real.
-- O seletor de exemplos só recarrega um exemplo quando outro é escolhido.
-- Não há banco de dados nem persistência: o código vive só na página aberta.
+- **Não há análise semântica** (Etapa 5): variável não declarada, tipos incompatíveis e `return` fora de função são aceitos.
+- Gramática de um **subconjunto** de C (ver `docs/gramatica.md`); recuperação de erros heurística.
+- **Ainda não houve avaliação com estudantes** (planejada: `docs/avaliacao/formulario.md`): os testes verificam correção técnica, não eficácia pedagógica.
+- Erros no início de uma instrução (`10 = x;`, `;` sozinho) não informam a regra violada (`regra = null`).
+- O celular foi **emulado**, não testado em aparelho real; os testes de navegador cobrem só Chromium.
+- Código limitado a 20.000 caracteres; a tabela mostra até 2.000 tokens; a versão em texto da árvore só existe para árvores de até 1.000 nós (há aviso na tela).
+- Identificadores aceitam só letras ASCII; não há banco de dados nem persistência.
+- **Diferencial opcional (Ollama + Llama 3.2) não implementado.**
 
 ## 13. Próximas etapas
 
-Etapa 4: análise sintática (parser) consumindo a lista de tokens do scanner. Etapa 5: análise semântica (declaração antes do uso, tipos). O endpoint `POST /api/analisar` é o ponto onde elas serão acopladas.
+Etapa 5: análise semântica sobre a AST (declaração antes do uso, tipos), usando a posição registrada em cada nó.

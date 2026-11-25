@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1010" width="980" height="1010" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">Fluxograma da análise: entrada, análise léxica, análise sintática, análise semântica (a implementar) e apresentação</title>
+<desc id="d">O código do usuário vai ao backend, é validado e passa pelo scanner. Se houver erro léxico, o parser não roda. Senão, o parser constrói a AST ou reporta erros sintáticos. A análise semântica é a etapa futura. O resultado volta ao frontend.</desc>
+<defs><marker id="ponta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker></defs>
+<rect width="980" height="1010" fill="#ffffff"/>
+<rect x="220.0" y="18.0" width="360" height="54" rx="9" fill="#f2f2f2" stroke="#666" stroke-width="2"/>
+<text x="400" y="41.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">Usuário escreve ou escolhe um código em C</text>
+<text x="400" y="58.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">(interface web)</text>
+<path d="M400,72 L400,105" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="220.0" y="108.0" width="360" height="54" rx="9" fill="#e8efff" stroke="#2f5bea" stroke-width="2"/>
+<text x="400" y="131.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">Frontend: validação local</text>
+<text x="400" y="148.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">(vazio / só espaços) e POST /api/analisar</text>
+<path d="M400,162 L400,198" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="220.0" y="201.0" width="360" height="54" rx="9" fill="#e8efff" stroke="#2f5bea" stroke-width="2"/>
+<text x="400" y="224.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">Backend: validação da entrada</text>
+<text x="400" y="241.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">(vazio, espaços, tamanho, JSON, Unicode)</text>
+<path d="M580,228 L700,228" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<text x="640" y="220.55" text-anchor="middle" font-size="13" fill="#444" font-weight="bold">inválida</text>
+<rect x="710.0" y="201.0" width="220" height="54" rx="9" fill="#fdeaea" stroke="#d64545" stroke-width="2"/>
+<text x="820" y="224.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">HTTP 400/413</text>
+<text x="820" y="241.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">mensagem de entrada inválida</text>
+<path d="M400,255 L400,295" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<text x="430" y="281.55" text-anchor="middle" font-size="13" fill="#444" font-weight="bold">válida</text>
+<rect x="220.0" y="298.0" width="360" height="54" rx="9" fill="#e6f6ec" stroke="#2e9d58" stroke-width="2"/>
+<text x="400" y="321.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">ANÁLISE LÉXICA (scanner, Etapa 3)</text>
+<text x="400" y="338.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">código → tokens + erros léxicos</text>
+<path d="M400,352 L400,395" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<polygon points="400,395.0 525.0,440 400,485.0 275.0,440" fill="#fff6e0" stroke="#d49a00" stroke-width="2"/>
+<text x="400" y="436.55" text-anchor="middle" font-size="13" fill="#1b1f2a" font-weight="normal">Há erros</text>
+<text x="400" y="452.55" text-anchor="middle" font-size="13" fill="#1b1f2a" font-weight="normal">léxicos?</text>
+<path d="M525,440 L700,440" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<text x="612" y="432.55" text-anchor="middle" font-size="13" fill="#444" font-weight="bold">sim</text>
+<rect x="710.0" y="407.0" width="220" height="66" rx="9" fill="#fff6e0" stroke="#d49a00" stroke-width="2"/>
+<text x="820" y="427.9" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">Parser NÃO executa</text>
+<text x="820" y="444.9" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">(evita erros em cascata)</text>
+<text x="820" y="461.9" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">erros léxicos são exibidos</text>
+<path d="M400,485 L400,535" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<text x="430" y="517.55" text-anchor="middle" font-size="13" fill="#444" font-weight="bold">não</text>
+<rect x="220.0" y="538.0" width="360" height="54" rx="9" fill="#efe9fb" stroke="#7a4fd0" stroke-width="2"/>
+<text x="400" y="561.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">ANÁLISE SINTÁTICA (parser, Etapa 4)</text>
+<text x="400" y="578.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">tokens → AST (descendente recursivo)</text>
+<path d="M400,592 L400,635" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<polygon points="400,635.0 525.0,680 400,725.0 275.0,680" fill="#fff6e0" stroke="#d49a00" stroke-width="2"/>
+<text x="400" y="676.55" text-anchor="middle" font-size="13" fill="#1b1f2a" font-weight="normal">Há erros</text>
+<text x="400" y="692.55" text-anchor="middle" font-size="13" fill="#1b1f2a" font-weight="normal">sintáticos?</text>
+<path d="M525,680 L700,680" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<text x="612" y="672.55" text-anchor="middle" font-size="13" fill="#444" font-weight="bold">sim</text>
+<rect x="710.0" y="647.0" width="220" height="66" rx="9" fill="#efe9fb" stroke="#7a4fd0" stroke-width="2"/>
+<text x="820" y="667.9" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">AST = nula</text>
+<text x="820" y="684.9" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">erros com linha, coluna,</text>
+<text x="820" y="701.9" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">esperado e regra violada</text>
+<path d="M400,725 L400,770" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<text x="430" y="754.55" text-anchor="middle" font-size="13" fill="#444" font-weight="bold">não</text>
+<rect x="220.0" y="773.0" width="360" height="54" rx="9" fill="#efe9fb" stroke="#7a4fd0" stroke-width="2"/>
+<text x="400" y="796.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">AST construída</text>
+<text x="400" y="813.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">(nós com tipo, atributos e posição)</text>
+<path d="M400,827 L400,865" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ponta)"/>
+<rect x="220.0" y="865.0" width="360" height="54" rx="9" fill="#f2f2f2" stroke="#888" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="400" y="888.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">ANÁLISE SEMÂNTICA (Etapa 5, a implementar)</text>
+<text x="400" y="905.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">tabela de símbolos e tipos</text>
+<rect x="20.0" y="943.0" width="940" height="58" rx="9" fill="#e8efff" stroke="#2f5bea" stroke-width="2"/>
+<text x="490" y="968.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">Resposta JSON (lexico + sintatico) → Frontend: tabela de tokens, passo a passo do scanner,</text>
+<text x="490" y="985.4" text-anchor="middle" font-size="14" fill="#1b1f2a" font-weight="normal">código colorido, erros léxicos/sintáticos e AST navegável com construção animada</text>
+<path d="M930,440 L948,440 L948,943" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<path d="M930,680 L966,680 L966,943" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<path d="M580,800 L700,800 L700,943" fill="none" stroke="#444" stroke-width="2" marker-end="url(#ponta)"/>
+<path d="M580,892 L640,892 L640,943" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ponta)"/>
+</svg>

@@ -37,6 +37,7 @@ Operadores compostos usam estados como `MENOR` → `MENOR_IGUAL`; strings usam `
   "tipo": "IDENTIFICADOR",
   "lexema": "numero",
   "linha": 1, "coluna": 5,
+  "fim_linha": 1, "fim_coluna": 11,
   "inicio": 4, "fim": 10,
   "caminho": [
     { "c": "n", "classe": "letra", "estado": "IDENT" },
@@ -45,11 +46,11 @@ Operadores compostos usam estados como `MENOR` → `MENOR_IGUAL`; strings usam `
 }
 ```
 
-`caminho` tem um item por caractere consumido: é o que alimenta o **passo a passo** (a interface mostra o caractere, sua classe e o estado do autômato). Em erros, o último estado é `ERRO`. Lexemas com mais de 40 caracteres são truncados com `…` na exibição; `inicio` e `fim` continuam exatos.
+`caminho` tem um item por caractere consumido: é o que alimenta o **passo a passo** (a interface mostra o caractere, sua classe e o estado do autômato). Em erros, o último estado é `ERRO`. (`fim_linha` e `fim_coluna` foram acrescentados na Etapa 4.) Lexemas com mais de 40 caracteres são truncados com `…` na exibição; `inicio` e `fim` continuam exatos.
 
 ## Contrato da API
 
-`POST /api/analisar` com `{"codigo": "<texto>"}`. As validações da Etapa 2 (vazio, só espaços, tamanho, JSON inválido) vêm **antes** do scanner e continuam iguais (HTTP 400/413).
+`POST /api/analisar` com `{"codigo": "<texto>"}`. As validações da Etapa 2 (vazio, só espaços, tamanho, JSON inválido) vêm **antes** do scanner e continuam iguais (HTTP 400/413). A partir da Etapa 4, a resposta ganhou os campos `lexico` e `sintatico`; todos os campos descritos aqui continuam no nível superior (ver `docs/parser.md`).
 
 **Resposta (HTTP 200)** para qualquer código válido como entrada, **inclusive com erros léxicos** (a análise foi feita; os erros são resultado, não requisição inválida):
 
@@ -97,7 +98,7 @@ A mensagem de sucesso deixou de ser `"Código recebido com sucesso."` e passou a
 
 ## Limitações
 
-- Só há análise léxica: programas com erros sintáticos ou semânticos são tokenizados normalmente (o `if (x ;` gera tokens válidos).
-- Não há pré-processador, hexadecimal, notação científica, sufixos numéricos nem `for`/`void` (ver `docs/escopo-lexico.md`).
+- O scanner só reconhece tokens: programas com erros sintáticos ou semânticos são tokenizados normalmente (o `if (x ;` gera tokens válidos). A análise sintática é feita pelo parser (`docs/parser.md`), que só roda se não houver erro léxico.
+- Não há pré-processador, hexadecimal, notação científica, sufixos numéricos nem `for` (ver `docs/escopo-lexico.md`).
 - Letras acentuadas fora de strings e comentários são erro léxico (identificadores são ASCII).
 - Uma string ou caractere não fechado é consumido até o fim da linha; um comentário de bloco não fechado consome o restante do código.

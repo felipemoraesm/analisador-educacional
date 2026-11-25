@@ -6,7 +6,7 @@ Este documento define **tudo** o que o scanner reconhece. O que não está aqui 
 
 | Categoria (`tipo`) | Regra de formação | Exemplos |
 |---|---|---|
-| `PALAVRA_RESERVADA` | `int` `float` `char` `if` `else` `while` `return` (lexema inteiro, com minúsculas) | `int`, `while` |
+| `PALAVRA_RESERVADA` | `int` `float` `char` `void` `if` `else` `while` `return` (lexema inteiro, com minúsculas) | `int`, `while` |
 | `IDENTIFICADOR` | letra ASCII ou `_`, seguida de letras ASCII, dígitos ou `_` (e que não seja palavra reservada) | `numero`, `_x1`, `total2` |
 | `LITERAL_INTEIRO` | um ou mais dígitos decimais | `0`, `42`, `007` |
 | `LITERAL_REAL` | dígitos, ponto, dígitos (um único ponto) | `3.14`, `0.5` |
@@ -40,6 +40,7 @@ O scanner sempre leva o **maior lexema possível** a partir da posição atual:
 
 - `linha` e `coluna` começam em **1** e contam **caracteres** (um tab conta 1; um emoji conta 1).
 - `\r\n`, `\n` e `\r` contam, cada um, como **uma** quebra de linha.
+- `fim_linha` e `fim_coluna` (Etapa 4) indicam a posição logo **após** o último caractere do token.
 - `inicio` e `fim` são deslocamentos em **unidades UTF-16** (início inclusivo, fim exclusivo), para o frontend recortar a string do JavaScript sem erro, mesmo com emojis.
 
 ## Erros léxicos
@@ -64,8 +65,8 @@ O scanner **não para** no primeiro erro: registra, pula o trecho problemático 
 
 ## O que **não** faz parte do subconjunto (por enquanto)
 
-Pré-processador (`#include`, `#define`), `for`, `do`, `switch`, `void`, `struct`, ponteiros e endereço (`*p`, `&x`), `++`/`--`, atribuições compostas (`+=`), operadores bit a bit, hexadecimal/octal, notação científica, sufixos (`10L`, `1.5f`) e strings com continuação de linha.
+Pré-processador (`#include`, `#define`), `for`, `do`, `switch`, `struct`, ponteiros e endereço (`*p`, `&x`), `++`/`--`, atribuições compostas (`+=`), operadores bit a bit, hexadecimal/octal, notação científica, sufixos (`10L`, `1.5f`) e strings com continuação de linha.
 
 ## Relação com as etapas seguintes
 
-O escopo **léxico** é um pouco maior que o escopo **sintático** que será implementado: o parser (Etapa 4) poderá cobrir apenas parte dessas construções (por exemplo, declarações, expressões, `if/else`, `while` e `return`), mas o scanner já tokeniza todas elas.
+A gramática da Etapa 4 (`docs/gramatica.md`) usa **todas** as categorias de token deste documento. A palavra reservada `void` foi acrescentada ao scanner nesta etapa, para o tipo de retorno de funções, e os tokens ganharam `fim_linha` e `fim_coluna`; os testes léxicos correspondentes foram atualizados de propósito (registro em `docs/testes.md`). Colchetes (`[` `]`) continuam sendo reconhecidos pelo scanner, mas **não** fazem parte da gramática.
