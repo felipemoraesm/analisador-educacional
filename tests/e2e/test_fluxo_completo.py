@@ -70,7 +70,7 @@ def test_fluxo_completo_exemplo_edicao_e_analise(pagina):
     pagina.click("#btn-analisar")
     resultado = pagina.locator("#resultado")
     expect(resultado).to_contain_text("Análise léxica concluída")  # Etapa 3 (antes: "Código recebido com sucesso.")
-    expect(resultado).to_contain_text("próximas etapas")
+    expect(resultado).to_contain_text("análise semântica será adicionada")  # Etapa 4: sintática já existe
     assert "int extra = 1;" in pagina.input_value("#entrada-codigo")  # código preservado
 
 
@@ -298,5 +298,180 @@ def test_layout_de_celular_sem_rolagem_horizontal(navegador):
     assert largura[0] <= largura[1], f"rolagem horizontal na página: {largura}"
     # botões de controle com área de toque confortável
     altura = pg.eval_on_selector("#passo-proximo", "e => e.getBoundingClientRect().height")
+    assert altura >= 40
+    contexto.close()
+
+
+# =====================================================================
+# Etapa 4: análise sintática e AST
+# =====================================================================
+def analisar_codigo(pg, codigo):
+    pg.fill("#entrada-codigo", codigo)
+    pg.click("#btn-analisar")
+    expect(pg.locator("#painel-lexico")).to_be_visible()
+
+
+def no(pg, tipo, k=0):
+    return pg.locator(f'#ast-arvore li[data-tipo="{tipo}"]').nth(k)
+
+
+def rotulo(pg, tipo, k=0):
+    return no(pg, tipo, k).locator(":scope > .ast-no__linha .ast-no__rotulo")
+
+
+def test_ast_do_exemplo_do_enunciado_respeita_a_precedencia(pagina):
+    analisar_codigo(pagina, "int resultado = 10 + 5 * 2;")
+    expect(pagina.locator("#secao-ast")).to_be_visible()
+    expect(pagina.locator("#sintatico-status")).to_contain_text("programa válido (AST com 7 nós)")
+    # a multiplicação está DENTRO da adição
+    expect(pagina.locator('#ast-arvore li[data-tipo="ADICAO"] li[data-tipo="MULTIPLICACAO"]')).to_have_count(1)
+    expect(pagina.locator('#ast-arvore li[data-tipo="MULTIPLICACAO"] li[data-tipo="ADICAO"]')).to_have_count(0)
+
+
+def test_associatividade_e_parenteses_na_arvore(pagina):
+    analisar_codigo(pagina, "int a = 20 - 5 - 3;")
+    # ((20 - 5) - 3): a subtração externa contém a interna
+    expect(pagina.locator('#ast-arvore li[data-tipo="SUBTRACAO"] li[data-tipo="SUBTRACAO"]')).to_have_count(1)
+    analisar_codigo(pagina, "int b = (10 + 5) * 2;")
+    expect(pagina.locator('#ast-arvore li[data-tipo="MULTIPLICACAO"] li[data-tipo="ADICAO"]')).to_have_count(1)
+
+
+def test_selecionar_no_destaca_o_trecho_no_codigo_e_mostra_a_regra(pagina):
+    analisar_codigo(pagina, "int resultado = 10 + 5 * 2;")
+    rotulo(pagina, "MULTIPLICACAO").click()
+    expect(pagina.locator("#ast-codigo .ast-sel")).to_have_text("5 * 2")
+    expect(pagina.locator("#ast-detalhes")).to_contain_text("termo = unario")
+    expect(pagina.locator("#ast-detalhes")).to_contain_text("Tokens deste nó (3)")
+    expect(no(pagina, "MULTIPLICACAO")).to_have_attribute("aria-selected", "true")
+
+
+def test_exemplo_de_funcoes_gera_ast_com_definicoes_e_chamadas(pagina):
+    analisar_exemplo(pagina, 10)
+    expect(pagina.locator('#ast-arvore li[data-tipo="DEFINICAO_FUNCAO"]')).to_have_count(2)
+    expect(pagina.locator('#ast-arvore li[data-tipo="CHAMADA_FUNCAO"]')).to_have_count(3)
+    expect(pagina.locator('#ast-arvore li[data-tipo="PARAMETRO"]')).to_have_count(3)
+
+
+def test_exemplo_de_aninhamento_mostra_blocos_dentro_de_blocos(pagina):
+    analisar_exemplo(pagina, 11)
+    expect(pagina.locator('#ast-arvore li[data-tipo="REPETICAO"] li[data-tipo="CONDICIONAL"]')).to_have_count(1)
+    pagina.select_option("#ast-filtro", "BLOCO")
+    expect(pagina.locator("#ast-arvore .ast-no--destaque")).to_have_count(3)
+
+
+def test_erro_sintatico_do_enunciado_com_linha_coluna_e_regra(pagina):
+    analisar_codigo(pagina, "int numero = 10}")
+    item = pagina.locator("#erros-sintaticos .erro-item--sint").first
+    expect(item).to_contain_text("Erro sintático na linha 1, coluna 16")
+    expect(item).to_contain_text("era esperado ';' ao final da declaração, mas foi encontrado '}'")
+    expect(item).to_contain_text("Regra da gramática: declaracao =")
+    expect(pagina.locator("#secao-ast")).to_be_hidden()
+    expect(pagina.locator("#sintatico-status")).to_contain_text("1 erro encontrado")
+    expect(pagina.locator("#codigo-colorido .tk-sint")).to_have_count(1)
+
+
+def test_exemplo_com_varios_erros_sintaticos_sem_cascata(pagina):
+    analisar_exemplo(pagina, 12)
+    expect(pagina.locator("#erros-sintaticos .erro-item--sint")).to_have_count(6)
+    expect(pagina.locator("#erros-sintaticos")).to_contain_text("operadores consecutivos")
+    expect(pagina.locator("#erros-sintaticos")).to_contain_text("o código terminou antes de o bloco aberto na linha 10")
+
+
+def test_erro_lexico_impede_o_parser_mas_continua_aparecendo(pagina):
+    analisar_exemplo(pagina, 8)
+    expect(pagina.locator("#sintatico-status")).to_contain_text("Análise sintática não executada")
+    expect(pagina.locator("#erros-lexicos .erro-item")).to_have_count(8)
+    expect(pagina.locator("#secao-ast")).to_be_hidden()
+    expect(pagina.locator("#erros-sintaticos .erro-item--sint")).to_have_count(0)
+
+
+def test_construcao_da_arvore_passo_a_passo(pagina):
+    analisar_codigo(pagina, "int resultado = 10 + 5 * 2;")
+    pagina.click("#ast-passo-inicio")
+    expect(pagina.locator("#ast-arvore .ast-no--fantasma")).to_have_count(7)
+    for _ in range(4):
+        pagina.click("#ast-passo-proximo")
+    expect(pagina.locator("#ast-narracao")).to_contain_text("MULTIPLICACAO")
+    expect(pagina.locator("#ast-codigo .ast-sel")).to_have_text("5 * 2")
+    expect(pagina.locator("#ast-arvore .ast-no--fantasma")).to_have_count(3)
+    pagina.click("#ast-passo-fim")
+    expect(pagina.locator("#ast-narracao")).to_contain_text("árvore está completa")
+    expect(pagina.locator("#ast-arvore .ast-no--fantasma")).to_have_count(0)
+
+
+def test_construcao_automatica_chega_ao_fim(pagina):
+    analisar_codigo(pagina, "int a = 1 + 2;")
+    pagina.select_option("#ast-passo-velocidade", "rapida")
+    pagina.click("#ast-passo-reproduzir")
+    expect(pagina.locator("#ast-passo-reproduzir")).to_have_text("▶ Reproduzir", timeout=8000)
+    expect(pagina.locator("#ast-passo-info")).to_have_text("Passo 5 de 5")
+
+
+def test_recolher_expandir_e_texto_acessivel(pagina):
+    analisar_codigo(pagina, "int resultado = 10 + 5 * 2;")
+    pagina.click("#ast-recolher")
+    expect(no(pagina, "ADICAO")).to_have_attribute("aria-expanded", "false")
+    expect(pagina.locator('#ast-arvore li[data-tipo="ADICAO"] > .ast-grupo')).to_be_hidden()
+    pagina.click("#ast-expandir")
+    expect(no(pagina, "MULTIPLICACAO")).to_have_attribute("aria-expanded", "true")
+    pagina.click(".ast-texto-det > summary")
+    expect(pagina.locator("#ast-texto")).to_contain_text("MULTIPLICACAO")
+
+
+def test_exportar_ast_em_json(pagina):
+    analisar_codigo(pagina, "int a = 1 + 2;")
+    with pagina.expect_download() as dl:
+        pagina.click("#ast-exportar")
+    import json as _json
+    conteudo = _json.loads(open(dl.value.path(), encoding="utf-8").read())
+    assert dl.value.suggested_filename == "ast.json"
+    assert conteudo["tipo"] == "PROGRAMA" and conteudo["filhos"][0]["tipo"] == "DECLARACAO_VARIAVEL"
+
+
+def test_gramatica_aparece_no_tutorial(pagina):
+    pagina.click("#tutorial > summary")
+    pagina.click("#tutorial details > summary")
+    expect(pagina.locator("#gramatica-ebnf")).to_contain_text("programa")
+    expect(pagina.locator("#gramatica-ebnf")).to_contain_text("definicao_funcao")
+
+
+def test_endpoint_devolve_contrato_sintatico_completo(pagina):
+    r = pagina.request.post(f"{BASE_URL}/api/analisar", data={"codigo": "int x = 1 + 2 * 3;"})
+    corpo = r.json()
+    assert corpo["recebido"] is True and corpo["sucesso"] is True  # Etapa 3 preservada
+    assert corpo["lexico"]["sucesso"] is True and len(corpo["lexico"]["tokens"]) == 9
+    s = corpo["sintatico"]
+    assert s["executado"] is True and s["sucesso"] is True and s["erros"] == []
+    assert s["ast"]["tipo"] == "PROGRAMA" and s["resumo"]["total_nos"] == 7
+    r = pagina.request.post(f"{BASE_URL}/api/analisar", data={"codigo": "int x = ;"})
+    s = r.json()["sintatico"]
+    assert s["sucesso"] is False and s["ast"] is None and s["erros"][0]["tipo"] == "ERRO_SINTATICO"
+
+
+def test_interface_nao_trava_com_entrada_no_limite(pagina):
+    import time
+    codigo = "int a = 1;\n" * 1800
+    pagina.fill("#entrada-codigo", codigo)
+    inicio = time.perf_counter()
+    pagina.click("#btn-analisar")
+    expect(pagina.locator("#sintatico-status")).to_contain_text("programa válido", timeout=20000)
+    assert time.perf_counter() - inicio < 20
+    pagina.click("#ast-expandir")  # continua respondendo
+    expect(pagina.locator("#ast-resumo")).to_contain_text("nós")
+
+
+def test_layout_de_celular_com_arvore_sem_rolagem_horizontal(navegador):
+    contexto = navegador.new_context(
+        viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True
+    )
+    pg = contexto.new_page()
+    pg.goto(BASE_URL)
+    expect(pg.locator("#seletor-exemplos option")).not_to_have_count(1)
+    pg.select_option("#seletor-exemplos", index=10)
+    pg.click("#btn-analisar")
+    expect(pg.locator("#secao-ast")).to_be_visible()
+    largura = pg.evaluate("() => [document.documentElement.scrollWidth, window.innerWidth]")
+    assert largura[0] <= largura[1], f"rolagem horizontal na página: {largura}"
+    altura = pg.eval_on_selector("#ast-passo-proximo", "e => e.getBoundingClientRect().height")
     assert altura >= 40
     contexto.close()

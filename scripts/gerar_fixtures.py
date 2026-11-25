@@ -21,6 +21,10 @@ CASOS = {
     "completo": "int idade = 21;\nfloat altura = 1.75; // comentario\nchar c = 'A';\nif (idade >= 18 && !c) { return 1; }\n",
     "com_erros": "int valor = 10;\nint total = valor @ 2;\nfloat taxa = 3.;\nchar s = \"aberta;\n/* sem fim\n",
     "emoji": "char s = \"😀\"; int x;",
+    # Etapa 4
+    "sintatico_ok": "int resultado = 10 + 5 * 2;",
+    "sintatico_funcoes": "int soma(int a, int b) {\n    return a + b;\n}\n\nint r = soma(2, 3);\n",
+    "sintatico_erro": "int x = 10\nint y = x + ;\nz = 5;\n",
 }
 
 if __name__ == "__main__":
